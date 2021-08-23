@@ -1,6 +1,7 @@
 import apex.amp as amp
 import torch
 import torch.nn.functional as F
+from tqdm import tqdm
 from torchvision import datasets, transforms
 from torch.utils.data.sampler import SubsetRandomSampler
 import numpy as np
@@ -101,6 +102,7 @@ def evaluate_pgd(test_loader, model, attack_iters, restarts):
             pgd_loss += loss.item() * y.size(0)
             pgd_acc += (output.max(1)[1] == y).sum().item()
             n += y.size(0)
+            print('Batch {}  avg acc: {}'.format(i, pgd_acc / (i+1)))
     return pgd_loss/n, pgd_acc/n
 
 
