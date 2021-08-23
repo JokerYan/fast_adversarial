@@ -164,7 +164,7 @@ def post_train(model, images, train_loaders_by_class):
     loss_func = nn.CrossEntropyLoss()
     device = torch.device('cuda')
     model = copy.deepcopy(model)
-    model.train()
+    # model.train()
     fix_model = copy.deepcopy(model)
     # attack_model = torchattacks.PGD(model, eps=(8/255)/std, alpha=(2/255)/std, steps=20)
     optimizer = torch.optim.SGD(lr=0.001,
