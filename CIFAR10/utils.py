@@ -249,13 +249,15 @@ def evaluate_pgd_post(test_loader, train_loaders_by_class, model, attack_iters, 
             loss = F.cross_entropy(output, y)
             pgd_loss += loss.item() * y.size(0)
             pgd_acc += (output.max(1)[1] == y).sum().item()
+            # print(output)
             print('Batch {}  avg acc: {}'.format(i, pgd_acc / n))
         post_model, _, _, _, _ = post_train(model, X, train_loaders_by_class)
         with torch.no_grad():
-            output = model(X + pgd_delta)
+            output = post_model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
             pgd_loss_post += loss.item() * y.size(0)
             pgd_acc_post += (output.max(1)[1] == y).sum().item()
+            # print(output)
             print('Batch {}  avg post acc: {}'.format(i, pgd_acc_post / n))
     return pgd_loss/n, pgd_acc/n, pgd_loss_post/n, pgd_acc_post/n
 
