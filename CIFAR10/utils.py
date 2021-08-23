@@ -159,7 +159,6 @@ def merge_images(train_images, val_images, ratio, device):
 
 
 def post_train(model, images, train_loaders_by_class):
-    print('post train called')
     alpha = (10 / 255) / std
     epsilon = (8 / 255) / std
     loss_func = nn.CrossEntropyLoss()
@@ -184,6 +183,7 @@ def post_train(model, images, train_loaders_by_class):
         neighbour_class = torch.argmax(neighbour_output).reshape(1)
 
         if original_class == neighbour_class:
+            print('original class == neighbour class')
             return model, original_class, neighbour_class, None, None
 
         loss_list = []
