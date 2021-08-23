@@ -258,6 +258,7 @@ def evaluate_pgd_post(test_loader, train_loaders_by_class, model, attack_iters, 
             pgd_acc_post += (output.max(1)[1] == y).sum().item()
             # print(output)
             print('Batch {}  avg post acc: {}'.format(i, pgd_acc_post / n))
+        print()
     return pgd_loss/n, pgd_acc/n, pgd_loss_post/n, pgd_acc_post/n
 
 
