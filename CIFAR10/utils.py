@@ -36,7 +36,6 @@ def get_loaders(dir_, batch_size):
         transforms.ToTensor(),
         transforms.Normalize(cifar10_mean, cifar10_std),
     ])
-    num_workers = 2
     train_dataset = datasets.CIFAR10(
         dir_, train=True, transform=train_transform, download=True)
     test_dataset = datasets.CIFAR10(
@@ -46,14 +45,14 @@ def get_loaders(dir_, batch_size):
         batch_size=batch_size,
         shuffle=True,
         pin_memory=True,
-        num_workers=num_workers,
+        num_workers=0,
     )
     test_loader = torch.utils.data.DataLoader(
         dataset=test_dataset,
         batch_size=batch_size,
         shuffle=False,
         pin_memory=True,
-        num_workers=2,
+        num_workers=0,
     )
     return train_loader, test_loader
 
@@ -65,7 +64,6 @@ def get_train_loaders_by_class(dir_, batch_size):
         transforms.ToTensor(),
         transforms.Normalize(cifar10_mean, cifar10_std),
     ])
-    num_workers = 2
     train_dataset = datasets.CIFAR10(
         dir_, train=True, transform=train_transform, download=True)
     indices_list = [[] for _ in range(10)]
@@ -79,7 +77,7 @@ def get_train_loaders_by_class(dir_, batch_size):
             batch_size=batch_size,
             shuffle=True,
             pin_memory=True,
-            num_workers=num_workers,
+            num_workers=0,
         ) for dataset in dataset_list
     ]
     return train_loader_list
