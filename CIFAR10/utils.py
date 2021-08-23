@@ -166,7 +166,7 @@ def post_train(model, images, train_loaders_by_class):
     model = copy.deepcopy(model)
     model.train()
     fix_model = copy.deepcopy(model)
-    attack_model = torchattacks.PGD(model, eps=(8/255)/std, alpha=(2/255)/std, steps=20)
+    # attack_model = torchattacks.PGD(model, eps=(8/255)/std, alpha=(2/255)/std, steps=20)
     optimizer = torch.optim.SGD(lr=0.001,
                                 params=model.parameters(),
                                 momentum=0.9,
@@ -177,7 +177,8 @@ def post_train(model, images, train_loaders_by_class):
         # find neighbour
         original_output = fix_model(images)
         original_class = torch.argmax(original_output).reshape(1)
-        neighbour_images = attack_model(images, original_class)
+        # neighbour_images = attack_model(images, original_class)
+        neighbour_images = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1) + images
         neighbour_output = fix_model(neighbour_images)
         neighbour_class = torch.argmax(neighbour_output).reshape(1)
 
