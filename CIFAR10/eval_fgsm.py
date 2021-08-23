@@ -4,8 +4,8 @@ import os
 
 import torch
 
-from CIFAR10.preact_resnet import PreActResNet18
-from CIFAR10.utils import evaluate_pgd, evaluate_standard, get_loaders
+from preact_resnet import PreActResNet18
+from utils import evaluate_pgd, evaluate_standard, get_loaders
 
 pretrained_model_path = os.path.join('.', 'pretrained_models', 'cifar_model_weights_30_epochs.pth')
 logger = logging.getLogger(__name__)
