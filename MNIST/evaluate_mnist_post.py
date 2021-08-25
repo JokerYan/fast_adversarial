@@ -1,139 +1,28 @@
+import argparse
 import copy
+import logging
+import sys
+import time
 
-import apex.amp as amp
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import Subset
+import torchvision
 from torchvision import datasets, transforms
-from torch.utils.data.sampler import SubsetRandomSampler
-import numpy as np
-from tqdm import tqdm
-import torchattacks
+from torch.utils.data import DataLoader, Dataset, Subset
 
-cifar10_mean = (0.4914, 0.4822, 0.4465)
-cifar10_std = (0.2471, 0.2435, 0.2616)
+from mnist_net import mnist_net
 
-mu = torch.tensor(cifar10_mean).view(3,1,1).cuda()
-std = torch.tensor(cifar10_std).view(3,1,1).cuda()
-
-upper_limit = ((1 - mu)/ std)
-lower_limit = ((0 - mu)/ std)
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    format='[%(asctime)s %(filename)s %(name)s %(levelname)s] - %(message)s',
+    datefmt='%Y/%m/%d %H:%M:%S',
+    level=logging.DEBUG)
 
 
 def clamp(X, lower_limit, upper_limit):
     return torch.max(torch.min(X, upper_limit), lower_limit)
-
-
-def get_loaders(dir_, batch_size):
-    train_transform = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(cifar10_mean, cifar10_std),
-    ])
-    test_transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(cifar10_mean, cifar10_std),
-    ])
-    train_dataset = datasets.CIFAR10(
-        dir_, train=True, transform=train_transform, download=True)
-    test_dataset = datasets.CIFAR10(
-        dir_, train=False, transform=test_transform, download=True)
-    train_loader = torch.utils.data.DataLoader(
-        dataset=train_dataset,
-        batch_size=batch_size,
-        shuffle=True,
-        pin_memory=True,
-        num_workers=0,
-    )
-    test_loader = torch.utils.data.DataLoader(
-        dataset=test_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        pin_memory=True,
-        num_workers=0,
-    )
-    return train_loader, test_loader
-
-
-def get_train_loaders_by_class(dir_, batch_size):
-    train_transform = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(cifar10_mean, cifar10_std),
-    ])
-    train_dataset = datasets.CIFAR10(
-        dir_, train=True, transform=train_transform, download=True)
-    indices_list = [[] for _ in range(10)]
-    for i in range(len(train_dataset)):
-        label = int(train_dataset[i][1])
-        indices_list[label].append(i)
-    dataset_list = [Subset(train_dataset, indices) for indices in indices_list]
-    train_loader_list = [
-        torch.utils.data.DataLoader(
-            dataset=dataset,
-            batch_size=batch_size,
-            shuffle=True,
-            pin_memory=True,
-            num_workers=0,
-        ) for dataset in dataset_list
-    ]
-    return train_loader_list
-
-
-def attack_pgd(model, X, y, epsilon, alpha, attack_iters, restarts, opt=None):
-    max_loss = torch.zeros(y.shape[0]).cuda()
-    max_delta = torch.zeros_like(X).cuda()
-    for zz in range(restarts):
-        delta = torch.zeros_like(X).cuda()
-        for i in range(len(epsilon)):
-            delta[:, i, :, :].uniform_(-epsilon[i][0][0].item(), epsilon[i][0][0].item())
-        delta.data = clamp(delta, lower_limit - X, upper_limit - X)
-        delta.requires_grad = True
-        for _ in range(attack_iters):
-            output = model(X + delta)
-            index = torch.where(output.max(1)[1] == y)
-            if len(index[0]) == 0:
-                break
-            loss = F.cross_entropy(output, y)
-            if opt is not None:
-                with amp.scale_loss(loss, opt) as scaled_loss:
-                    scaled_loss.backward()
-            else:
-                loss.backward()
-            grad = delta.grad.detach()
-            d = delta[index[0], :, :, :]
-            g = grad[index[0], :, :, :]
-            d = clamp(d + alpha * torch.sign(g), -epsilon, epsilon)
-            d = clamp(d, lower_limit - X[index[0], :, :, :], upper_limit - X[index[0], :, :, :])
-            delta.data[index[0], :, :, :] = d
-            delta.grad.zero_()
-        all_loss = F.cross_entropy(model(X+delta), y, reduction='none').detach()
-        max_delta[all_loss >= max_loss] = delta.detach()[all_loss >= max_loss]
-        max_loss = torch.max(max_loss, all_loss)
-    return max_delta
-
-
-def evaluate_pgd(test_loader, model, attack_iters, restarts):
-    epsilon = (8 / 255.) / std
-    alpha = (2 / 255.) / std
-    pgd_loss = 0
-    pgd_acc = 0
-    n = 0
-    model.eval()
-    for i, (X, y) in enumerate(test_loader):
-        X, y = X.cuda(), y.cuda()
-        pgd_delta = attack_pgd(model, X, y, epsilon, alpha, attack_iters, restarts)
-        with torch.no_grad():
-            output = model(X + pgd_delta)
-            loss = F.cross_entropy(output, y)
-            pgd_loss += loss.item() * y.size(0)
-            pgd_acc += (output.max(1)[1] == y).sum().item()
-            n += y.size(0)
-            print('Batch {}  avg acc: {}'.format(i, pgd_acc / n))
-    return pgd_loss/n, pgd_acc/n
 
 
 def cal_accuracy(outputs, labels):
@@ -156,9 +45,67 @@ def merge_images(train_images, val_images, ratio, device):
     return merged_images
 
 
+def attack_fgsm(model, X, y, epsilon):
+    delta = torch.zeros_like(X, requires_grad=True)
+    output = model(X + delta)
+    loss = F.cross_entropy(output, y)
+    loss.backward()
+    grad = delta.grad.detach()
+    delta.data = epsilon * torch.sign(grad)
+    return delta.detach()
+
+
+def get_train_loaders_by_class(dir_, batch_size):
+    train_transform = transforms.Compose([
+        transforms.ToTensor(),
+    ])
+    train_dataset = datasets.CIFAR10(
+        dir_, train=True, transform=train_transform, download=True)
+    indices_list = [[] for _ in range(10)]
+    for i in range(len(train_dataset)):
+        label = int(train_dataset[i][1])
+        indices_list[label].append(i)
+    dataset_list = [Subset(train_dataset, indices) for indices in indices_list]
+    train_loader_list = [
+        torch.utils.data.DataLoader(
+            dataset=dataset,
+            batch_size=batch_size,
+            shuffle=True,
+            pin_memory=True,
+            num_workers=0,
+        ) for dataset in dataset_list
+    ]
+    return train_loader_list
+
+
+def attack_pgd(model, X, y, epsilon, alpha, attack_iters, restarts):
+    max_loss = torch.zeros(y.shape[0]).cuda()
+    max_delta = torch.zeros_like(X).cuda()
+    for _ in range(restarts):
+        delta = torch.zeros_like(X).uniform_(-epsilon, epsilon).cuda()
+        delta.data = clamp(delta, 0-X, 1-X)
+        delta.requires_grad = True
+        for _ in range(attack_iters):
+            output = model(X + delta)
+            index = torch.where(output.max(1)[1] == y)[0]
+            if len(index) == 0:
+                break
+            loss = F.cross_entropy(output, y)
+            loss.backward()
+            grad = delta.grad.detach()
+            d = torch.clamp(delta + alpha * torch.sign(grad), -epsilon, epsilon)
+            d = clamp(d, 0-X, 1-X)
+            delta.data[index] = d[index]
+            delta.grad.zero_()
+        all_loss = F.cross_entropy(model(X+delta), y, reduction='none')
+        max_delta[all_loss >= max_loss] = delta.detach()[all_loss >= max_loss]
+        max_loss = torch.max(max_loss, all_loss)
+    return max_delta
+
+
 def post_train(model, images, train_loaders_by_class):
-    alpha = (10 / 255) / std
-    epsilon = (8 / 255) / std
+    alpha = 10 / 255
+    epsilon = 8 / 255
     loss_func = nn.CrossEntropyLoss()
     device = torch.device('cuda')
     model = copy.deepcopy(model)
@@ -230,9 +177,66 @@ def post_train(model, images, train_loaders_by_class):
     return model, original_class, neighbour_class, loss_list, acc_list
 
 
-def evaluate_pgd_post(test_loader, train_loaders_by_class, model, attack_iters, restarts):
-    epsilon = (8 / 255.) / std
-    alpha = (2 / 255.) / std
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--batch-size', default=100, type=int)
+    parser.add_argument('--data-dir', default='../mnist-data', type=str)
+    parser.add_argument('--fname', type=str)
+    parser.add_argument('--attack', default='pgd', type=str, choices=['pgd', 'fgsm', 'none'])
+    parser.add_argument('--epsilon', default=0.3, type=float)
+    parser.add_argument('--attack-iters', default=50, type=int)
+    parser.add_argument('--alpha', default=1e-2, type=float)
+    parser.add_argument('--restarts', default=10, type=int)
+    parser.add_argument('--seed', default=0, type=int)
+    return parser.parse_args()
+
+
+def main():
+    args = get_args()
+    logger.info(args)
+
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    torch.cuda.manual_seed(args.seed)
+
+    mnist_test = datasets.MNIST("../mnist-data", train=False, download=True, transform=transforms.ToTensor())
+    test_loader = torch.utils.data.DataLoader(mnist_test, batch_size=1, shuffle=False)
+    train_loaders_by_class = get_train_loaders_by_class("../mnist-data", batch_size=100)
+
+    model = mnist_net().cuda()
+    checkpoint = torch.load(args.fname)
+    model.load_state_dict(checkpoint)
+    model.eval()
+
+    # total_loss = 0
+    # total_acc = 0
+    # n = 0
+    #
+    # if args.attack == 'none':
+    #     with torch.no_grad():
+    #         for i, (X, y) in enumerate(test_loader):
+    #             X, y = X.cuda(), y.cuda()
+    #             output = model(X)
+    #             loss = F.cross_entropy(output, y)
+    #             total_loss += loss.item() * y.size(0)
+    #             total_acc += (output.max(1)[1] == y).sum().item()
+    #             n += y.size(0)
+    # else:
+    #     for i, (X, y) in enumerate(test_loader):
+    #         X, y = X.cuda(), y.cuda()
+    #         if args.attack == 'pgd':
+    #             delta = attack_pgd(model, X, y, args.epsilon, args.alpha, args.attack_iters, args.restarts)
+    #         elif args.attack == 'fgsm':
+    #             delta = attack_fgsm(model, X, y, args.epsilon)
+    #         with torch.no_grad():
+    #             output = model(X + delta)
+    #             loss = F.cross_entropy(output, y)
+    #             total_loss += loss.item() * y.size(0)
+    #             total_acc += (output.max(1)[1] == y).sum().item()
+    #             n += y.size(0)
+
+    epsilon = args.epsilon
+    alpha = args.alpha
     pgd_loss = 0
     pgd_acc = 0
     pgd_loss_post = 0
@@ -244,7 +248,7 @@ def evaluate_pgd_post(test_loader, train_loaders_by_class, model, attack_iters, 
     for i, (X, y) in enumerate(test_loader):
         n += y.size(0)
         X, y = X.cuda(), y.cuda()
-        pgd_delta = attack_pgd(model, X, y, epsilon, alpha, attack_iters, restarts)
+        pgd_delta = attack_pgd(model, X, y, epsilon, alpha, args.attack_iters, args.restarts)
         with torch.no_grad():
             output = model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
@@ -265,20 +269,10 @@ def evaluate_pgd_post(test_loader, train_loaders_by_class, model, attack_iters, 
             normal_acc_post += (output.max(1)[1] == y).sum().item()
             print('Batch {}  normal post acc: {}'.format(i, normal_acc_post / n))
         print()
-    return pgd_loss/n, pgd_acc/n, pgd_loss_post/n, pgd_acc_post/n, normal_loss_post/n, normal_acc_post/n
+
+    logger.info('Normal Loss \t Normal Acc \t PGD Loss \t PGD Acc \t PGD Post Loss \t PGD Post Acc')
+    logger.info('%.4f \t \t %.4f \t %.4f \t %.4f \t %.4f \t \t %.4f', normal_loss_post/n, normal_acc_post/n, pgd_loss/n, pgd_acc/n, pgd_loss_post/n, pgd_acc_post/n)
 
 
-def evaluate_standard(test_loader, model):
-    test_loss = 0
-    test_acc = 0
-    n = 0
-    model.eval()
-    with torch.no_grad():
-        for i, (X, y) in enumerate(test_loader):
-            X, y = X.cuda(), y.cuda()
-            output = model(X)
-            loss = F.cross_entropy(output, y)
-            test_loss += loss.item() * y.size(0)
-            test_acc += (output.max(1)[1] == y).sum().item()
-            n += y.size(0)
-    return test_loss/n, test_acc/n
+if __name__ == "__main__":
+    main()

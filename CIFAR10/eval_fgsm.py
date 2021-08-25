@@ -29,10 +29,11 @@ def main():
     model_test.eval()
 
     # pgd_loss, pgd_acc = evaluate_pgd(test_loader, model_test, 50, 10)
-    pgd_loss, pgd_acc, pgd_loss_post, pgd_acc_post, test_loss, test_acc = evaluate_pgd_post(test_loader, train_loaders_by_class, model_test, 50, 10)
+    pgd_loss, pgd_acc, pgd_loss_post, pgd_acc_post, normal_loss_post, normal_acc_post \
+        = evaluate_pgd_post(test_loader, train_loaders_by_class, model_test, 50, 10)
 
-    logger.info('Test Loss \t Test Acc \t PGD Loss \t PGD Acc \t PGD Post Loss \t PGD Post Acc')
-    logger.info('%.4f \t \t %.4f \t %.4f \t %.4f \t %.4f \t \t %.4f', test_loss, test_acc, pgd_loss, pgd_acc, pgd_loss_post, pgd_acc_post)
+    logger.info('Normal Loss \t Normal Acc \t PGD Loss \t PGD Acc \t PGD Post Loss \t PGD Post Acc')
+    logger.info('%.4f \t \t %.4f \t %.4f \t %.4f \t %.4f \t \t %.4f', normal_loss_post, normal_acc_post, pgd_loss, pgd_acc, pgd_loss_post, pgd_acc_post)
 
 
 if __name__ == '__main__':
