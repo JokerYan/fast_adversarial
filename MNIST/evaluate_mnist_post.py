@@ -3,6 +3,7 @@ import copy
 import logging
 import sys
 import time
+import random
 
 import numpy as np
 import torch
@@ -129,11 +130,13 @@ def post_train(model, images, train_loaders_by_class):
 
         if original_class == neighbour_class:
             print('original class == neighbour class')
-            return model, original_class, neighbour_class, None, None
+            # return model, original_class, neighbour_class, None, None
+            neighbour_lost = True
 
         loss_list = []
         acc_list = []
         for _ in range(50):
+            neighbour_class = original_class + random.randint(1, 9)
             original_data, original_label = next(iter(train_loaders_by_class[original_class]))
             neighbour_data, neighbour_label = next(iter(train_loaders_by_class[neighbour_class]))
 
