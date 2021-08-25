@@ -41,7 +41,6 @@ def cal_accuracy(outputs, labels):
 def merge_images(train_images, val_images, ratio, device):
     batch_size = len(train_images)
     repeated_val_images = val_images.repeat(batch_size, 1, 1, 1)
-    print(train_images.shape, val_images.shape)
     merged_images = ratio * train_images.to(device) + (1 - ratio) * repeated_val_images.to(device)
     # image[0][channel] = 0.5 * image[0][channel].to(device) + 0.5 * val_images[0][channel].to(device)
     return merged_images
@@ -61,7 +60,7 @@ def get_train_loaders_by_class(dir_, batch_size):
     train_transform = transforms.Compose([
         transforms.ToTensor(),
     ])
-    train_dataset = datasets.CIFAR10(
+    train_dataset = datasets.MNIST(
         dir_, train=True, transform=train_transform, download=True)
     indices_list = [[] for _ in range(10)]
     for i in range(len(train_dataset)):
