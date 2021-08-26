@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-import matplotlibR = np.sqrt(X**2 + Y**2)
+import matplotlib
 
 matplotlib.use('Agg')
 from matplotlib import cm
