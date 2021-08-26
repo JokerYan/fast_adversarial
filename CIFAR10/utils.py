@@ -189,9 +189,10 @@ def post_train(model, images, train_loaders_by_class):
         acc_list = []
         for _ in range(50):
             # randomize neighbour
-            neighbour_class = (original_class + random.randint(1, 9)) % 10
+            neighbour_class = (original_class + random.randint(0, 9)) % 10
 
-            original_data, original_label = next(iter(train_loaders_by_class[original_class]))
+            # original_data, original_label = next(iter(train_loaders_by_class[original_class]))
+            original_data, original_label = next(iter(train_loaders_by_class[neighbour_class]))
             neighbour_data, neighbour_label = next(iter(train_loaders_by_class[neighbour_class]))
 
             data = torch.vstack([original_data, neighbour_data]).to(device)
