@@ -26,7 +26,7 @@ def calculate_loss_surface(base_model, loss_model_list, loss_model_name_list, im
         pgd_delta_list.append(pgd_delta)
     with torch.no_grad():
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-        for loss_model in loss_model_list:
+        for model_index, loss_model in enumerate(loss_model_list):
             loss_surface = torch.zeros(step_count, step_count)
             delta_axis_x = torch.zeros(step_count)
             delta_axis_y = torch.zeros(step_count)
@@ -46,7 +46,8 @@ def calculate_loss_surface(base_model, loss_model_list, loss_model_name_list, im
             delta_axis_x, delta_axis_y = np.meshgrid(delta_axis_x.detach().cpu().numpy(), delta_axis_y.detach().cpu().numpy())
             loss_surface = loss_surface.detach().cpu().numpy()
 
-            ax.plot_surface(delta_axis_x, delta_axis_y, loss_surface, cmap=cm.coolwarm)
+            ax.plot_surface(delta_axis_x, delta_axis_y, loss_surface, label=loss_model_name_list[model_index])
+        ax.legend()
         plt.savefig('./loss_surface.png')
         input('loss surface plot saved')
         plt.close()
