@@ -47,7 +47,7 @@ def calculate_loss_surface(base_model, loss_model_list, loss_model_name_list, im
             loss_surface = loss_surface.detach().cpu().numpy()
 
             surf = ax.plot_surface(delta_axis_x, delta_axis_y, loss_surface, label=loss_model_name_list[model_index])
-            surf._edgecolors2d = surf._edgecolors3d
+            surf._edgecolors2d = surf.get_facecolor()
         ax.legend()
         plt.savefig('./loss_surface.png')
         print('loss surface plot saved')
