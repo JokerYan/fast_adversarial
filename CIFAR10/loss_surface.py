@@ -9,7 +9,7 @@ mu = torch.tensor(cifar10_mean).view(3,1,1).cuda()
 std = torch.tensor(cifar10_std).view(3,1,1).cuda()
 
 
-def calculate_loss_surface(base_model, loss_model_list, image, label, attack_func):
+def calculate_loss_surface(base_model, loss_model_list, loss_model_name_list, image, label, attack_func):
     loss_func = torch.nn.CrossEntropyLoss()
     epsilon = (8 / 255.) / std
     alpha = (2 / 255.) / std
