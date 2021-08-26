@@ -1,4 +1,10 @@
 import torch
+import numpy as np
+import matplotlib
+
+matplotlib.use('Agg')
+from matplotlib import cm
+from matplotlib import pyplot as plt
 
 
 cifar10_mean = (0.4914, 0.4822, 0.4465)
@@ -19,10 +25,15 @@ def calculate_loss_surface(base_model, loss_model_list, loss_model_name_list, im
         pgd_delta = attack_func(base_model, image, label, epsilon, alpha, 50, 10, opt=None)
         pgd_delta_list.append(pgd_delta)
     with torch.no_grad():
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
         for loss_model in loss_model_list:
             loss_surface = torch.zeros(step_count, step_count)
+            delta_axis_x = torch.zeros(step_count)
+            delta_axis_y = torch.zeros(step_count)
             for i in range(step_count):
                 for j in range(step_count):
+                    delta_axis_x[i] = pgd_delta_list[0] * i / step_count
+                    delta_axis_y[j] = pgd_delta_list[1] * j / step_count
                     mix_delta = pgd_delta_list[0] * i / step_count \
                                 + pgd_delta_list[1] * j / step_count
                     mix_image = image + mix_delta
@@ -30,3 +41,10 @@ def calculate_loss_surface(base_model, loss_model_list, loss_model_name_list, im
                     mix_loss = loss_func(mix_output, label)
                     loss_surface[i][j] = mix_loss
             print(loss_surface)
+            delta_axis_x = np.meshgrid(delta_axis_x.detach().cpu().numpy())
+            delta_axis_y = np.meshgrid(delta_axis_y.detach().cpu().numpy())
+            loss_surface = loss_surface.detach().cpu().numpy()
+
+            ax.plot_surface(delta_axis_x, delta_axis_y, loss_surface, linewidth=0, cmap=cm.coolwarm)
+        plt.savefig('./loss_surface.png')
+        input('loss surface plot saved')
