@@ -42,12 +42,13 @@ def calculate_loss_surface(base_model, loss_model_list, loss_model_name_list, im
                     mix_output = loss_model(mix_image)
                     mix_loss = loss_func(mix_output, label)
                     loss_surface[i][j] = mix_loss
-            print(loss_surface)
+            # print(loss_surface)
             delta_axis_x, delta_axis_y = np.meshgrid(delta_axis_x.detach().cpu().numpy(), delta_axis_y.detach().cpu().numpy())
             loss_surface = loss_surface.detach().cpu().numpy()
 
-            ax.plot_surface(delta_axis_x, delta_axis_y, loss_surface, label=loss_model_name_list[model_index])
+            surf = ax.plot_surface(delta_axis_x, delta_axis_y, loss_surface, label=loss_model_name_list[model_index])
+            surf._edgecolors2d = surf._edgecolors3d
         ax.legend()
         plt.savefig('./loss_surface.png')
-        input('loss surface plot saved')
+        print('loss surface plot saved')
         plt.close()
