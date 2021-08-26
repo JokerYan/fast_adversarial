@@ -48,6 +48,6 @@ def calculate_loss_surface(base_model, loss_model_list, loss_model_name_list, im
             delta_axis_y = np.meshgrid(delta_axis_y.detach().cpu().numpy())
             loss_surface = loss_surface.detach().cpu().numpy()
 
-            ax.plot_surface(delta_axis_x, delta_axis_y, loss_surface, linewidth=0, cmap=cm.coolwarm)
+            ax.plot_surface(delta_axis_x, delta_axis_y, loss_surface, linewidth=0)
         plt.savefig('./loss_surface.png')
         input('loss surface plot saved')
