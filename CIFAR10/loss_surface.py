@@ -32,8 +32,10 @@ def calculate_loss_surface(base_model, loss_model_list, loss_model_name_list, im
             delta_axis_y = torch.zeros(step_count)
             for i in range(step_count):
                 for j in range(step_count):
-                    delta_axis_x[i] = torch.norm(pgd_delta_list[0] * i / step_count, p=2)
-                    delta_axis_y[j] = torch.norm(pgd_delta_list[1] * j / step_count, p=2)
+                    # delta_axis_x[i] = torch.norm(pgd_delta_list[0] * i / step_count, p=2)
+                    # delta_axis_y[j] = torch.norm(pgd_delta_list[1] * j / step_count, p=2)
+                    delta_axis_x[i] = i
+                    delta_axis_y[j] = j
                     mix_delta = pgd_delta_list[0] * i / step_count \
                                 + pgd_delta_list[1] * j / step_count
                     mix_image = image + mix_delta
