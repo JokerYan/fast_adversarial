@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-import matplotlib
+import matplotlibR = np.sqrt(X**2 + Y**2)
 
 matplotlib.use('Agg')
 from matplotlib import cm
@@ -42,12 +42,11 @@ def calculate_loss_surface(base_model, loss_model_list, loss_model_name_list, im
                     mix_output = loss_model(mix_image)
                     mix_loss = loss_func(mix_output, label)
                     loss_surface[i][j] = mix_loss
-                    loss_surface[i][j] = 1
             print(loss_surface)
-            delta_axis_x = np.meshgrid(delta_axis_x.detach().cpu().numpy())
-            delta_axis_y = np.meshgrid(delta_axis_y.detach().cpu().numpy())
+            delta_axis_x, delta_axis_y = np.meshgrid(delta_axis_x.detach().cpu().numpy(), delta_axis_y.detach().cpu().numpy())
             loss_surface = loss_surface.detach().cpu().numpy()
 
             ax.plot_surface(delta_axis_x, delta_axis_y, loss_surface)
         plt.savefig('./loss_surface.png')
         input('loss surface plot saved')
+        plt.close()
