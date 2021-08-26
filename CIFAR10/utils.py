@@ -183,7 +183,7 @@ def post_train(model, images, train_loaders_by_class):
 
         if original_class == neighbour_class:
             print('original class == neighbour class')
-            return model, original_class, neighbour_class, None, None
+            # return model, original_class, neighbour_class, None, None
 
         loss_list = []
         acc_list = []
