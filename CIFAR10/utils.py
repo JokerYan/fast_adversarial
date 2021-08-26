@@ -12,6 +12,8 @@ import numpy as np
 from tqdm import tqdm
 import torchattacks
 
+from CIFAR10.loss_surface import calculate_loss_surface
+
 cifar10_mean = (0.4914, 0.4822, 0.4465)
 cifar10_std = (0.2471, 0.2435, 0.2616)
 
@@ -272,6 +274,7 @@ def evaluate_pgd_post(test_loader, train_loaders_by_class, model, attack_iters, 
             normal_acc_post += (output.max(1)[1] == y).sum().item()
             normal_output_class_post = torch.argmax(output)
             print('Batch {}  normal post acc: {}'.format(i, normal_acc_post / n))
+        calculate_loss_surface(model, [model, post_model], X, y)
         print('label: {}  pgd: {}  pgd_post: {}  normal_post: {}'.format(int(y), int(pgd_output_class), int(pgd_output_class_post), int(normal_output_class_post)))
         print()
     return pgd_loss/n, pgd_acc/n, pgd_loss_post/n, pgd_acc_post/n, normal_loss_post/n, normal_acc_post/n
