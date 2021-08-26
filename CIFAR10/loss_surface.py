@@ -42,6 +42,7 @@ def calculate_loss_surface(base_model, loss_model_list, loss_model_name_list, im
                     mix_output = loss_model(mix_image)
                     mix_loss = loss_func(mix_output, label)
                     loss_surface[i][j] = mix_loss
+                    loss_surface[i][j] = 1
             print(loss_surface)
             delta_axis_x = np.meshgrid(delta_axis_x.detach().cpu().numpy())
             delta_axis_y = np.meshgrid(delta_axis_y.detach().cpu().numpy())
