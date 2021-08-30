@@ -1,6 +1,6 @@
 # This module is adapted from https://github.com/mahyarnajibi/FreeAdversarialTraining/blob/master/main_free.py
 # Which in turn was adapted from https://github.com/pytorch/examples/blob/master/imagenet/main.py
-import init_paths
+# import init_paths
 import argparse
 import os
 import time
