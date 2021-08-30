@@ -114,7 +114,10 @@ def main():
     resize_transform = []
 
     if configs.DATA.img_size > 0: 
-        resize_transform = [ transforms.Resize(configs.DATA.img_size) ] 
+        resize_transform = [ transforms.Resize(configs.DATA.img_size) ]
+
+    # download imagenet
+    imagenet_data = datasets.ImageNet(configs.data, download=True)
 
     train_dataset = datasets.ImageFolder(
         traindir,
