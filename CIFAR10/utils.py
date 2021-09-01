@@ -218,8 +218,8 @@ def post_train(model, images, train_loaders_by_class):
             # attack_model.set_mode_targeted_by_function(lambda im, la: target)
             # adv_input = attack_model(data, label)
 
-            # adv_output = model(adv_input.detach())
-            adv_output = model(data.detach())
+            adv_output = model(adv_input.detach())
+            # adv_output = model(data.detach())  # non adv training
             # adv_class = torch.argmax(adv_output)
             loss_pos = loss_func(adv_output, label)
             loss_neg = loss_func(adv_output, target)
