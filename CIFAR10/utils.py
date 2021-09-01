@@ -205,6 +205,8 @@ def post_train(model, images, train_loader, train_loaders_by_class):
             # target = torch.hstack([neighbour_label, original_label]).to(device)
 
             data, label = next(iter(train_loader))
+            data = data.to(device)
+            label = label.to(device)
 
             # generate fgsm adv examplesp
             delta = (torch.rand_like(data) * 2 - 1) * epsilon  # uniform rand from [-eps, eps]
