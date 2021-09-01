@@ -283,7 +283,7 @@ def evaluate_pgd_post(test_loader, train_loaders_by_class, model, attack_iters, 
             loss = F.cross_entropy(output, y)
             double_attack_loss += loss.item() * y.size(0)
             double_attack_acc += (output.max(1)[1] == y).sum().item()
-            print('Batch {}  avg post then attack acc: {}'.format(i, double_attack_acc / n))
+            print('Batch {}  avg double attack acc: {}'.format(i, double_attack_acc / n))
         # calculate_loss_surface(model, [model, post_model], ['model', 'post_model'], X, y, attack_func=attack_pgd)
         print('label: {}  pgd: {}  pgd_post: {}  normal_post: {}'.format(int(y), int(pgd_output_class), int(pgd_output_class_post), int(normal_output_class_post)))
         print()
