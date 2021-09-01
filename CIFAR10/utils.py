@@ -192,9 +192,9 @@ def post_train(model, images, train_loader, train_loaders_by_class):
         acc_list = []
         for _ in range(5):
             # randomize neighbour
-            neighbour_class = (original_class + random.randint(1, 9)) % 10
-            # original_class = (original_class + random.randint(0, 9)) % 10
-            # neighbour_class = (original_class + random.randint(0, 9)) % 10
+            # neighbour_class = (original_class + random.randint(1, 9)) % 10
+            original_class = (original_class + random.randint(0, 9)) % 10
+            neighbour_class = (original_class + random.randint(0, 9)) % 10
             #
             original_data, original_label = next(iter(train_loaders_by_class[original_class]))
             neighbour_data, neighbour_label = next(iter(train_loaders_by_class[neighbour_class]))
