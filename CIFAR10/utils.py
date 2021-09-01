@@ -159,7 +159,7 @@ def merge_images(train_images, val_images, ratio, device):
     return merged_images
 
 
-def post_train(model, images, train_loaders_by_class):
+def post_train(model, images, train_loader, train_loaders_by_class):
     alpha = (10 / 255) / std
     epsilon = (8 / 255) / std
     loss_func = nn.CrossEntropyLoss()
@@ -193,16 +193,18 @@ def post_train(model, images, train_loaders_by_class):
         for _ in range(5):
             # randomize neighbour
             # neighbour_class = (original_class + random.randint(1, 9)) % 10
-            original_class = (original_class + random.randint(0, 9)) % 10
-            neighbour_class = (original_class + random.randint(0, 9)) % 10
+            # original_class = (original_class + random.randint(0, 9)) % 10
+            # neighbour_class = (original_class + random.randint(0, 9)) % 10
+            #
+            # original_data, original_label = next(iter(train_loaders_by_class[original_class]))
+            # neighbour_data, neighbour_label = next(iter(train_loaders_by_class[neighbour_class]))
 
-            original_data, original_label = next(iter(train_loaders_by_class[original_class]))
-            neighbour_data, neighbour_label = next(iter(train_loaders_by_class[neighbour_class]))
-
-            data = torch.vstack([original_data, neighbour_data]).to(device)
+            # data = torch.vstack([original_data, neighbour_data]).to(device)
             # data = merge_images(data, images, 0.7, device)
-            label = torch.hstack([original_label, neighbour_label]).to(device)
-            target = torch.hstack([neighbour_label, original_label]).to(device)
+            # label = torch.hstack([original_label, neighbour_label]).to(device)
+            # target = torch.hstack([neighbour_label, original_label]).to(device)
+
+            data, label = next(iter(train_loader))
 
             # generate fgsm adv examplesp
             delta = (torch.rand_like(data) * 2 - 1) * epsilon  # uniform rand from [-eps, eps]
@@ -224,7 +226,7 @@ def post_train(model, images, train_loaders_by_class):
             # adv_output = model(data.detach())  # non adv training
             # adv_class = torch.argmax(adv_output)
             loss_pos = loss_func(adv_output, label)
-            loss_neg = loss_func(adv_output, target)
+            # loss_neg = loss_func(adv_output, target)
             # bce_loss = target_bce_loss_func(adv_output, label, original_class, neighbour_class)
             # bl_loss = target_bl_loss_func(adv_output, label, original_class, neighbour_class)
 
@@ -240,7 +242,7 @@ def post_train(model, images, train_loaders_by_class):
     return model, original_class, neighbour_class, loss_list, acc_list
 
 
-def evaluate_pgd_post(test_loader, train_loaders_by_class, model, attack_iters, restarts):
+def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, attack_iters, restarts):
     epsilon = (8 / 255.) / std
     alpha = (2 / 255.) / std
     pgd_loss = 0
@@ -264,7 +266,7 @@ def evaluate_pgd_post(test_loader, train_loaders_by_class, model, attack_iters, 
             pgd_acc += (output.max(1)[1] == y).sum().item()
             pgd_output_class = torch.argmax(output)
             print('Batch {}  avg acc: {}'.format(i, pgd_acc / n))
-        post_model, _, _, _, _ = post_train(model, X, train_loaders_by_class)
+        post_model, _, _, _, _ = post_train(model, X, train_loader, train_loaders_by_class)
         with torch.no_grad():
             output = post_model(X + pgd_delta)
             loss = F.cross_entropy(output, y)

@@ -21,7 +21,8 @@ def main():
     args = get_args()
     state_dict = torch.load(pretrained_model_path)
 
-    train_loader, test_loader = get_loaders(args.data_dir, batch_size=1)
+    _, test_loader = get_loaders(args.data_dir, batch_size=1)
+    train_loader, _ = get_loaders(args.data_dir, batch_size=256)
     train_loaders_by_class = get_train_loaders_by_class(args.data_dir, batch_size=128)
     model_test = PreActResNet18().cuda()
     model_test.load_state_dict(state_dict)
@@ -30,7 +31,7 @@ def main():
 
     # pgd_loss, pgd_acc = evaluate_pgd(test_loader, model_test, 50, 10)
     pgd_loss, pgd_acc, pgd_loss_post, pgd_acc_post, normal_loss_post, normal_acc_post \
-        = evaluate_pgd_post(test_loader, train_loaders_by_class, model_test, 50, 10)
+        = evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model_test, 50, 10)
 
     logger.info('Normal Loss \t Normal Acc \t PGD Loss \t PGD Acc \t PGD Post Loss \t PGD Post Acc')
     logger.info('%.4f \t \t %.4f \t %.4f \t %.4f \t %.4f \t \t %.4f', normal_loss_post, normal_acc_post, pgd_loss, pgd_acc, pgd_loss_post, pgd_acc_post)
