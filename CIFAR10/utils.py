@@ -285,7 +285,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             print('Batch {}  normal post acc: {}'.format(i, normal_acc_post / n))
         pgd_delta = attack_pgd(post_model, X, y, epsilon, alpha, attack_iters, restarts).detach()
         with torch.no_grad():
-            output = model(X + pgd_delta)
+            output = post_model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
             double_attack_loss += loss.item() * y.size(0)
             double_attack_acc += (output.max(1)[1] == y).sum().item()

@@ -246,6 +246,8 @@ def main():
     pgd_acc_post = 0
     normal_loss_post = 0
     normal_acc_post = 0
+    double_attack_loss = 0
+    double_attack_acc = 0
     n = 0
     model.eval()
     for i, (X, y) in enumerate(test_loader):
@@ -271,6 +273,13 @@ def main():
             normal_loss_post += loss.item() * y.size(0)
             normal_acc_post += (output.max(1)[1] == y).sum().item()
             print('Batch {}  normal post acc: {}'.format(i, normal_acc_post / n))
+        pgd_delta = attack_pgd(post_model, X, y, epsilon, alpha, args.attack_iters, args.restarts).detach()
+        with torch.no_grad():
+            output = post_model(X + pgd_delta)
+            loss = F.cross_entropy(output, y)
+            double_attack_loss += loss.item() * y.size(0)
+            double_attack_acc += (output.max(1)[1] == y).sum().item()
+            print('Batch {}  avg double attack acc: {}'.format(i, double_attack_acc / n))
         print()
 
     logger.info('Normal Loss \t Normal Acc \t PGD Loss \t PGD Acc \t PGD Post Loss \t PGD Post Acc')
