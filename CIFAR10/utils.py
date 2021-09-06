@@ -190,6 +190,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
 
         loss_list = []
         acc_list = []
+        original_class = (original_class + random.randint(0, 9)) % 10
         for _ in range(args.pt_iter):
             # randomize neighbour
             if args.pt_data == 'ori_rand':
@@ -302,7 +303,6 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         # calculate_loss_surface(model, [model, post_model], ['model', 'post_model'], X, y, attack_func=attack_pgd)
         print('label: {}  pgd: {}  pgd_post: {}  normal_post: {}'.format(int(y), int(pgd_output_class), int(pgd_output_class_post), int(normal_output_class_post)))
         print()
-
 
     return pgd_loss/n, pgd_acc/n, pgd_loss_post/n, pgd_acc_post/n, normal_loss_post/n, normal_acc_post/n
 
