@@ -206,7 +206,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             neighbour_data_1, neighbour_label_1 = next(iter(train_loaders_by_class[neighbour_class]))
             neighbour_data_2, neighbour_label_2 = next(iter(train_loaders_by_class[neighbour_class]))
             neighbour_data = torch.vstack([neighbour_data_1, neighbour_data_2])
-            neighbour_label = torch.vstack([neighbour_label_1, neighbour_label_2])
+            neighbour_label = torch.hstack([neighbour_label_1, neighbour_label_2])
 
             data = torch.vstack([original_data, neighbour_data]).to(device)
             if args.mixup:
