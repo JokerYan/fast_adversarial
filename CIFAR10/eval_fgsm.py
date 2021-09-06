@@ -15,7 +15,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-dir', default='../../cifar-data', type=str)
     parser.set_defaults(mixup=True, type=bool)
-    parser.add_argument('--no-mixup', dest='mixup', action='store-false')
+    parser.add_argument('--no-mixup', dest='mixup', action='store_false')
     parser.add_argument('--pt-data', default='ori_rand', choices=['ori_rand', 'rand'], type=str)
     parser.add_argument('--pt-method', default='adv', choices=['adv', 'normal'], type=str)
     parser.add_argument('--pt-iter', default=5, type=int)
