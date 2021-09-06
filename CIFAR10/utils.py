@@ -190,6 +190,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
 
         loss_list = []
         acc_list = []
+        original_class = (original_class + random.randint(0, 9)) % 10
         for _ in range(args.pt_iter):
             # randomize neighbour
             if args.pt_data == 'ori_rand':
@@ -201,12 +202,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
                 raise NotImplementedError
 
             original_data, original_label = next(iter(train_loaders_by_class[original_class]))
-            # neighbour_data, neighbour_label = next(iter(train_loaders_by_class[neighbour_class]))
-
-            neighbour_data_1, neighbour_label_1 = next(iter(train_loaders_by_class[neighbour_class]))
-            neighbour_data_2, neighbour_label_2 = next(iter(train_loaders_by_class[neighbour_class]))
-            neighbour_data = torch.vstack([neighbour_data_1, neighbour_data_2])
-            neighbour_label = torch.hstack([neighbour_label_1, neighbour_label_2])
+            neighbour_data, neighbour_label = next(iter(train_loaders_by_class[neighbour_class]))
 
             data = torch.vstack([original_data, neighbour_data]).to(device)
             if args.mixup:
