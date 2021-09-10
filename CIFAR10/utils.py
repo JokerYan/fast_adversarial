@@ -190,14 +190,14 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
 
         loss_list = []
         acc_list = []
-        # original_class = (original_class + random.randint(0, 9)) % 10
+        # original_class = (original_class + random.randint(0, 10)) % 10
         for _ in range(args.pt_iter):
             # randomize neighbour
             if args.pt_data == 'ori_rand':
-                neighbour_class = (original_class + random.randint(1, 9)) % 10
+                neighbour_class = (original_class + random.randint(1, 10)) % 10
             elif args.pt_data == 'rand':
-                original_class = (original_class + random.randint(0, 9)) % 10
-                neighbour_class = (original_class + random.randint(0, 9)) % 10
+                original_class = (original_class + random.randint(0, 10)) % 10
+                neighbour_class = (original_class + random.randint(0, 10)) % 10
             else:
                 raise NotImplementedError
 
