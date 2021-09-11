@@ -183,6 +183,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
 
         # use model cache
         if post_model_cache[int(original_class)] is not None:
+            print("model cache used")
             return post_model_cache[int(original_class)], None, None, None, None
 
         # neighbour_images = attack_model(images, original_class)
