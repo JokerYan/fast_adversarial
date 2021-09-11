@@ -263,7 +263,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             acc_list.append(defense_acc)
             # print('loss: {:.4f}  acc: {:.4f}'.format(loss, defense_acc))
         # update model cache
-        if post_model_cache[int(original_class)] is not None:
+        if post_model_cache[int(original_class)] is None:
             post_model_cache[int(original_class)] = model
     return model, original_class, neighbour_class, loss_list, acc_list
 
