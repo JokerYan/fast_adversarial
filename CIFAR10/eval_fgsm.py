@@ -28,7 +28,8 @@ def main():
     state_dict = torch.load(pretrained_model_path)
 
     _, test_loader = get_loaders(args.data_dir, batch_size=1)
-    train_loader, _ = get_loaders(args.data_dir, batch_size=128)
+    # train_loader, _ = get_loaders(args.data_dir, batch_size=128)
+    train_loader, _ = get_loaders(args.data_dir, batch_size=32)
     train_loaders_by_class = get_train_loaders_by_class(args.data_dir, batch_size=128)
     model_test = PreActResNet18().cuda()
     model_test.load_state_dict(state_dict)
