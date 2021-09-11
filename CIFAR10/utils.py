@@ -282,6 +282,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             pgd_loss += loss.item() * y.size(0)
             pgd_acc += (output.max(1)[1] == y).sum().item()
             pgd_output_class = torch.argmax(output)
+            print("adv class: {} adv output: {}".format(pgd_output_class, output))
             print('Batch {}  avg acc: {}'.format(i, pgd_acc / n))
         post_model, _, _, _, _ = post_train(model, X, train_loader, train_loaders_by_class, args)
         with torch.no_grad():
@@ -290,6 +291,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             pgd_loss_post += loss.item() * y.size(0)
             pgd_acc_post += (output.max(1)[1] == y).sum().item()
             pgd_output_class_post = torch.argmax(output)
+            print("post class: {} post output: {}".format(pgd_output_class_post, output))
             print('Batch {}  avg post acc: {}'.format(i, pgd_acc_post / n))
         with torch.no_grad():
             output = post_model(X)
