@@ -260,7 +260,7 @@ def main():
             pgd_loss += loss.item() * y.size(0)
             pgd_acc += (output.max(1)[1] == y).sum().item()
             print('Batch {}  avg acc: {}'.format(i, pgd_acc / n))
-        post_model, _, _, _, _ = post_train(model, X, train_loaders_by_class)
+        post_model, _, _, _, _ = post_train(model, X + pgd_delta, train_loaders_by_class)
         with torch.no_grad():
             output = post_model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
