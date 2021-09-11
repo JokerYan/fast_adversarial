@@ -16,7 +16,7 @@ def get_args():
     parser.add_argument('--data-dir', default='../../cifar-data', type=str)
     parser.set_defaults(mixup=True, type=bool)
     parser.add_argument('--no-mixup', dest='mixup', action='store_false')
-    parser.add_argument('--pt-data', default='ori_rand', choices=['ori_rand', 'rand'], type=str)
+    parser.add_argument('--pt-data', default='ori_rand', choices=['ori_rand', 'ori_train', 'rand'], type=str)
     parser.add_argument('--pt-method', default='adv', choices=['adv', 'normal'], type=str)
     parser.add_argument('--pt-iter', default=5, type=int)
     return parser.parse_args()
@@ -28,7 +28,7 @@ def main():
     state_dict = torch.load(pretrained_model_path)
 
     _, test_loader = get_loaders(args.data_dir, batch_size=1)
-    train_loader, _ = get_loaders(args.data_dir, batch_size=256)
+    train_loader, _ = get_loaders(args.data_dir, batch_size=128)
     train_loaders_by_class = get_train_loaders_by_class(args.data_dir, batch_size=128)
     model_test = PreActResNet18().cuda()
     model_test.load_state_dict(state_dict)
