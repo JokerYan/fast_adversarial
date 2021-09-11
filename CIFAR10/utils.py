@@ -159,7 +159,6 @@ def merge_images(train_images, val_images, ratio, device):
     return merged_images
 
 
-post_model_cache = [None for _ in range(10)]
 def post_train(model, images, train_loader, train_loaders_by_class, args):
     alpha = (10 / 255) / std
     epsilon = (8 / 255) / std
@@ -180,11 +179,6 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
         # find neighbour
         original_output = fix_model(images)
         original_class = torch.argmax(original_output).reshape(1)
-
-        # use model cache
-        if post_model_cache[int(original_class)] is not None:
-            print("model cache used")
-            return post_model_cache[int(original_class)], None, None, None, None
 
         # neighbour_images = attack_model(images, original_class)
         neighbour_images = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1) + images
@@ -263,9 +257,6 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             loss_list.append(loss)
             acc_list.append(defense_acc)
             # print('loss: {:.4f}  acc: {:.4f}'.format(loss, defense_acc))
-        # update model cache
-        if post_model_cache[int(original_class)] is None:
-            post_model_cache[int(original_class)] = model
     return model, original_class, neighbour_class, loss_list, acc_list
 
 
