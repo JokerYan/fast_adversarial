@@ -86,13 +86,14 @@ def get_train_loaders_by_class(dir_, batch_size):
     return train_loader_list
 
 
-def attack_pgd(model, X, y, epsilon, alpha, attack_iters, restarts, opt=None):
+def attack_pgd(model, X, y, epsilon, alpha, attack_iters, restarts, opt=None, random_start=True):
     max_loss = torch.zeros(y.shape[0]).cuda()
     max_delta = torch.zeros_like(X).cuda()
     for zz in range(restarts):
         delta = torch.zeros_like(X).cuda()
-        for i in range(len(epsilon)):
-            delta[:, i, :, :].uniform_(-epsilon[i][0][0].item(), epsilon[i][0][0].item())
+        if random_start:
+            for i in range(len(epsilon)):
+                delta[:, i, :, :].uniform_(-epsilon[i][0][0].item(), epsilon[i][0][0].item())
         delta.data = clamp(delta, lower_limit - X, upper_limit - X)
         delta.requires_grad = True
         for _ in range(attack_iters):
@@ -181,7 +182,9 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
         original_class = torch.argmax(original_output).reshape(1)
 
         # neighbour_images = attack_model(images, original_class)
-        neighbour_images = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1) + images
+        rs_neighbour = args.rs_neigh
+        neighbour_images = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1,
+                                      random_start=rs_neighbour) + images
         neighbour_output = fix_model(neighbour_images)
         neighbour_class = torch.argmax(neighbour_output).reshape(1)
 
@@ -217,6 +220,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             else:
                 data = torch.vstack([original_data, neighbour_data]).to(device)
                 label = torch.hstack([original_label, neighbour_label]).to(device)
+
             if args.mixup:
                 data = merge_images(data, images, 0.7, device)
             # target = torch.hstack([neighbour_label, original_label]).to(device)
