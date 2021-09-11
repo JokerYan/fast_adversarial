@@ -205,19 +205,20 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             #     raise NotImplementedError
 
             original_data, original_label = next(iter(train_loaders_by_class[original_class]))
+            train_data, train_label = next(iter(train_loader))
             if args.pt_data == 'ori_train':
                 neighbour_data, neighbour_label = next(iter(train_loader))
             else:
                 neighbour_data, neighbour_label = next(iter(train_loaders_by_class[neighbour_class]))
 
             if args.pt_data == 'ori_neigh_train':
-                train_data = next(iter(train_loader))
                 data = torch.vstack([original_data, neighbour_data, train_data]).to(device)
+                label = torch.hstack([original_label, neighbour_label, train_label]).to(device)
             else:
                 data = torch.vstack([original_data, neighbour_data]).to(device)
+                label = torch.hstack([original_label, neighbour_label]).to(device)
             if args.mixup:
                 data = merge_images(data, images, 0.7, device)
-            label = torch.hstack([original_label, neighbour_label]).to(device)
             # target = torch.hstack([neighbour_label, original_label]).to(device)
 
             # data, label = next(iter(train_loader))
