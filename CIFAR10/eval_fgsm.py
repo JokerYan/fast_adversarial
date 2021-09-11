@@ -20,7 +20,7 @@ def get_args():
     parser.add_argument('--pt-method', default='adv', choices=['adv', 'normal'], type=str)
     parser.add_argument('--pt-iter', default=5, type=int)
     parser.set_defaults(rs_neigh=True, type=bool)
-    parser.add_argument('--no_rs_neigh', dest='rs_neigh', action='store_false')
+    parser.add_argument('--no-rs-neigh', dest='rs_neigh', action='store_false')
     return parser.parse_args()
 
 
