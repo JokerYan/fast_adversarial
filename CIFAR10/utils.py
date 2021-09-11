@@ -295,7 +295,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             pgd_output_class = torch.argmax(output)
             # print("adv class: {} adv output: {}".format(pgd_output_class, output))
             print('Batch {}  avg acc: {}'.format(i, pgd_acc / n))
-        post_model, _, _, _, _ = post_train(model, X, train_loader, train_loaders_by_class, args)
+        post_model, _, _, _, _ = post_train(model, X + pgd_delta, train_loader, train_loaders_by_class, args)
         with torch.no_grad():
             output = post_model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
