@@ -165,7 +165,7 @@ def merge_images_and_labels(ori_images, neigh_images, ori_labels, neigh_labels, 
     neigh_images_major = neigh_images * ratio + ori_images * (1 - ratio)
     # ori_labels_major = ori_labels * ratio + neigh_labels * (1 - ratio)
     # neigh_labels_major = neigh_labels * ratio + ori_labels * (1 - ratio)
-    ori_labels_major = ori_images
+    ori_labels_major = ori_labels
     neigh_labels_major = neigh_labels
     return ori_images_major, neigh_images_major, ori_labels_major, neigh_labels_major
 
