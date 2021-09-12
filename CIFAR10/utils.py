@@ -165,9 +165,17 @@ def merge_images_and_labels(ori_images, neigh_images, ori_labels, neigh_labels, 
     neigh_images_major = neigh_images * ratio + ori_images * (1 - ratio)
     # ori_labels_major = ori_labels * ratio + neigh_labels * (1 - ratio)
     # neigh_labels_major = neigh_labels * ratio + ori_labels * (1 - ratio)
-    ori_labels_major = ori_labels
-    neigh_labels_major = neigh_labels
+    ori_labels_major = torch.vstack([ori_labels, neigh_labels])
+    neigh_labels_major = torch.vstack([neigh_labels, ori_labels])
     return ori_images_major, neigh_images_major, ori_labels_major, neigh_labels_major
+
+
+def mixup_loss(loss_func, output, stack_labels, ratio):
+    label_first = torch.squeeze(stack_labels[:, 0])
+    label_second = torch.squeeze(stack_labels[:, 1])
+    loss_first = ratio * loss_func(output, label_first)
+    loss_second = (1 - ratio) * loss_func(output, label_second)
+    return loss_first + loss_second
 
 
 
@@ -268,7 +276,8 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             else:
                 raise NotImplementedError
             # adv_class = torch.argmax(adv_output)
-            loss_pos = loss_func(adv_output, label)
+            # loss_pos = loss_func(adv_output, label)
+            loss_pos = mixup_loss(loss_func, adv_output, label, 0.7)
             # loss_neg = loss_func(adv_output, target)
             # bce_loss = target_bce_loss_func(adv_output, label, original_class, neighbour_class)
             # bl_loss = target_bl_loss_func(adv_output, label, original_class, neighbour_class)
