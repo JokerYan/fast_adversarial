@@ -171,10 +171,10 @@ def merge_images_and_labels(ori_images, neigh_images, ori_labels, neigh_labels, 
 
 
 def mixup_loss(loss_func, output, stack_labels, ratio):
-    label_first = torch.squeeze(stack_labels[:, 0])
-    label_second = torch.squeeze(stack_labels[:, 1])
-    print(stack_labels.shape)
-    print(label_first.shape)
+    label_first = torch.squeeze(stack_labels[0, :])
+    label_second = torch.squeeze(stack_labels[1, :])
+    # print(stack_labels.shape)
+    # print(label_first.shape)
     loss_first = ratio * loss_func(output, label_first)
     loss_second = (1 - ratio) * loss_func(output, label_second)
     return loss_first + loss_second
