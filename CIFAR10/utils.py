@@ -183,8 +183,9 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
 
         # neighbour_images = attack_model(images, original_class)
         rs_neighbour = args.rs_neigh
-        neighbour_images = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1,
-                                      random_start=rs_neighbour) + images
+        neighbour_delta = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1,
+                                      random_start=rs_neighbour)
+        neighbour_images = neighbour_delta + images
         neighbour_output = fix_model(neighbour_images)
         neighbour_class = torch.argmax(neighbour_output).reshape(1)
 
@@ -240,6 +241,9 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             delta = delta + alpha * torch.sign(input_grad)
             delta.clamp_(-epsilon, epsilon)
             adv_input = data + delta
+
+            # use fixed direction attack
+            adv_input = data - neighbour_delta
 
             # generate pgd adv example
             # attack_model.set_mode_targeted_by_function(lambda im, la: target)
