@@ -238,7 +238,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             # adv_input = data + delta
 
             # use fixed direction attack
-            adv_input = data + (torch.randint(0, 1, size=(len(neighbour_delta),)) - 0.5) * 2 * neighbour_delta
+            adv_input = data + (torch.randint(0, 1, size=(len(neighbour_delta),)) - 0.5).to(device) * 2 * neighbour_delta
 
             if args.pt_method == 'adv':
                 adv_output = model(adv_input.detach())
