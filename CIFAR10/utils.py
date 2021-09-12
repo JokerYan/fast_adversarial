@@ -280,6 +280,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
     normal_acc_post = 0
     double_attack_loss = 0
     double_attack_acc = 0
+    neighbour_acc = 0
     n = 0
     model.eval()
     for i, (X, y) in enumerate(test_loader):
@@ -294,8 +295,12 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             pgd_output_class = torch.argmax(output)
             # print("adv class: {} adv output: {}".format(pgd_output_class, output))
             print('Batch {}  avg acc: {}'.format(i, pgd_acc / n))
+
         post_model, original_class, neighbour_class, _, _ = post_train(model, X + pgd_delta, train_loader, train_loaders_by_class, args)
+        # evaluate neighbour found
         normal_output_class = int(torch.argmax(model(X)))
+        neighbour_acc += 1 if int(y) == int(original_class) or int(y) == int(neighbour_class)
+        print('neighbour acc: {:.4f}'.format(neighbour_acc / n))
         print('label: {} normal: {} original: {} neighbour: {}'.format(int(y), int(normal_output_class), int(original_class), int(neighbour_class)))
         with torch.no_grad():
             output = post_model(X + pgd_delta)
