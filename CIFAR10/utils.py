@@ -294,7 +294,8 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             pgd_output_class = torch.argmax(output)
             # print("adv class: {} adv output: {}".format(pgd_output_class, output))
             print('Batch {}  avg acc: {}'.format(i, pgd_acc / n))
-        post_model, _, _, _, _ = post_train(model, X + pgd_delta, train_loader, train_loaders_by_class, args)
+        post_model, original_class, neighbour_class, _, _ = post_train(model, X + pgd_delta, train_loader, train_loaders_by_class, args)
+        print('label: {} original: {} neighbour: {}'.format(int(y), int(original_class), int(neighbour_class)))
         with torch.no_grad():
             output = post_model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
@@ -318,7 +319,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             double_attack_acc += (output.max(1)[1] == y).sum().item()
             print('Batch {}  avg double attack acc: {}'.format(i, double_attack_acc / n))
         # calculate_loss_surface(model, [model, post_model], ['model', 'post_model'], X, y, attack_func=attack_pgd)
-        print('label: {}  pgd: {}  pgd_post: {}  normal_post: {}'.format(int(y), int(pgd_output_class), int(pgd_output_class_post), int(normal_output_class_post)))
+        # print('label: {}  pgd: {}  pgd_post: {}  normal_post: {}'.format(int(y), int(pgd_output_class), int(pgd_output_class_post), int(normal_output_class_post)))
         print()
 
     return pgd_loss/n, pgd_acc/n, pgd_loss_post/n, pgd_acc_post/n, normal_loss_post/n, normal_acc_post/n
