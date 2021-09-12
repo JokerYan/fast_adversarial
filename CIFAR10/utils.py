@@ -244,6 +244,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             adv_input = data + delta
 
             # use fixed direction attack
+            print(data.shape, neighbour_delta.shape)
             adv_input = data - neighbour_delta
 
             # generate pgd adv example
