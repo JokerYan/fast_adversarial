@@ -184,6 +184,8 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
         # neighbour_images = attack_model(images, original_class)
         neighbour_delta = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1,
                                       random_start=args.rs_neigh)
+        noise = ((torch.rand_like(images.detach()) * 2 - 1) * epsilon).to(device)  # uniform rand from [-eps, eps]
+        neighbour_delta += noise
         neighbour_images = neighbour_delta + images
         neighbour_output = fix_model(neighbour_images)
         neighbour_class = torch.argmax(neighbour_output).reshape(1)
