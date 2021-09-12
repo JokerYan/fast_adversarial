@@ -245,7 +245,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
 
             # use fixed direction attack
             print(data.shape, neighbour_delta.shape)
-            adv_input = data - neighbour_delta
+            adv_input = data + (torch.randint(0, 1, size=()) - 0.5) * 2 * neighbour_delta
 
             # generate pgd adv example
             # attack_model.set_mode_targeted_by_function(lambda im, la: target)
