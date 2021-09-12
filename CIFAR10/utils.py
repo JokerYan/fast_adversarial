@@ -295,7 +295,8 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             # print("adv class: {} adv output: {}".format(pgd_output_class, output))
             print('Batch {}  avg acc: {}'.format(i, pgd_acc / n))
         post_model, original_class, neighbour_class, _, _ = post_train(model, X + pgd_delta, train_loader, train_loaders_by_class, args)
-        print('label: {} original: {} neighbour: {}'.format(int(y), int(original_class), int(neighbour_class)))
+        normal_output_class = int(torch.argmax(model(X)))
+        print('label: {} normal: {} original: {} neighbour: {}'.format(int(y), int(normal_output_class), int(original_class), int(neighbour_class)))
         with torch.no_grad():
             output = post_model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
