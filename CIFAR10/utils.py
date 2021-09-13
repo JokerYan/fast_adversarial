@@ -326,8 +326,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             print('Batch {}  avg acc: {}'.format(i, pgd_acc / n))
 
         post_model, original_class, neighbour_class, _, _, neighbour_delta = post_train(model, X + pgd_delta, train_loader, train_loaders_by_class, args)
-        print(pgd_delta.shape, neighbour_delta.shape)
-        print("cos sim: {}", cos_sim(pgd_delta, neighbour_delta))
+        print("cos sim: {}", cos_sim(pgd_delta.reshape(-1), neighbour_delta.reshape(-1)))
         # evaluate neighbour found
         normal_output_class = int(torch.argmax(model(X)))
         neighbour_acc += 1 if int(y) == int(original_class) or int(y) == int(neighbour_class) else 0
