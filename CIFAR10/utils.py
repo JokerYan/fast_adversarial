@@ -204,7 +204,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
 
         # neighbour_images = attack_model(images, original_class)
         neighbour_delta = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1,
-                                      random_start=args.rs_neigh).detach()
+                                      random_start=args.rs_neigh)
         # noise = ((torch.rand_like(images.detach()) * 2 - 1) * epsilon).to(device)  # uniform rand from [-eps, eps]
         # neighbour_delta += noise
         neighbour_images = neighbour_delta + images
@@ -269,6 +269,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             # print((torch.randint(0, 2, size=(len(data),)) - 0.5))
             # adv_input = data + (torch.randint(0, 2, size=(len(data),)) - 0.5).to(device) * 2 * neighbour_delta
             # adv_input = data + (torch.rand_like(data) - 0.5).to(device) * 2 * neighbour_delta
+            print(torch.norm(neighbour_delta))
             adv_input = data + -1 * torch.rand_like(data).to(device) * neighbour_delta
             # adv_input = data + (torch.randint(0, 2, size=()) - 0.5).to(device) * 2 * neighbour_delta
             # adv_input = data + -0.5 * neighbour_delta
