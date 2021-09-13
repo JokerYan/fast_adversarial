@@ -311,7 +311,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
     neighbour_acc = 0
     n = 0
     model.eval()
-    cos_sim = nn.CosineSimilarity()
+    cos_sim = nn.CosineSimilarity(dim=0)
     for i, (X, y) in enumerate(test_loader):
         n += y.size(0)
         X, y = X.cuda(), y.cuda()
