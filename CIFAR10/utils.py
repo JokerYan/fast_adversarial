@@ -268,7 +268,8 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             # use fixed direction attack
             # print((torch.randint(0, 2, size=(len(data),)) - 0.5))
             # adv_input = data + (torch.randint(0, 2, size=(len(data),)) - 0.5).to(device) * 2 * neighbour_delta
-            adv_input = data + (torch.randint(0, 2, size=()) - 0.5).to(device) * 2 * neighbour_delta
+            # adv_input = data + (torch.randint(0, 2, size=()) - 0.5).to(device) * 2 * neighbour_delta
+            adv_input = data + -1 * neighbour_delta
             # directed_delta = torch.vstack([torch.ones_like(original_data).to(device) * neighbour_delta,
             #                                 torch.ones_like(neighbour_data).to(device) * -1 * neighbour_delta])
             # adv_input = data + directed_delta
@@ -294,7 +295,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             defense_acc = cal_accuracy(adv_output, label)
             loss_list.append(loss)
             acc_list.append(defense_acc)
-            print('loss: {:.4f}  acc: {:.4f}'.format(loss, defense_acc))
+            # print('loss: {:.4f}  acc: {:.4f}'.format(loss, defense_acc))
     return model, original_class, neighbour_class, loss_list, acc_list, neighbour_delta
 
 
