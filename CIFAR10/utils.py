@@ -330,7 +330,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         # print("ref sim: {}".format(cos_sim(torch.rand_like((pgd_delta.view(-1))), torch.rand_like((neighbour_delta.view(-1))))))
         # print("cos sim: {}".format(cos_sim(pgd_delta.view(-1), neighbour_delta.view(-1))))
         borrowed_attack_output = model(X - neighbour_delta)
-        borrowed_attack_acc += 1 if borrowed_attack_output == pgd_output_class else 0
+        borrowed_attack_acc += 1 if torch.argmax(borrowed_attack_output) == pgd_output_class else 0
         print("borrowed attack acc: {:.4f}".format(borrowed_attack_acc / n))
         # print("label: {} adv: {} borrowed attack: {}".format(int(y), int(pgd_output_class), int(torch.argmax(borrowed_attack_output))))
 
