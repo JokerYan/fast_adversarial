@@ -214,7 +214,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
         if original_class == neighbour_class:
             print('original class == neighbour class')
             if args.pt_data == 'ori_neigh':
-                return model, original_class, neighbour_class, None, None
+                return model, original_class, neighbour_class, None, None, neighbour_delta
 
         loss_list = []
         acc_list = []
@@ -294,7 +294,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             loss_list.append(loss)
             acc_list.append(defense_acc)
             # print('loss: {:.4f}  acc: {:.4f}'.format(loss, defense_acc))
-    return model, original_class, neighbour_class, loss_list, acc_list
+    return model, original_class, neighbour_class, loss_list, acc_list, neighbour_delta
 
 
 def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, attack_iters, restarts, args):
@@ -311,6 +311,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
     neighbour_acc = 0
     n = 0
     model.eval()
+    cos_sim = nn.CosineSimilarity()
     for i, (X, y) in enumerate(test_loader):
         n += y.size(0)
         X, y = X.cuda(), y.cuda()
@@ -324,7 +325,9 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             # print("adv class: {} adv output: {}".format(pgd_output_class, output))
             print('Batch {}  avg acc: {}'.format(i, pgd_acc / n))
 
-        post_model, original_class, neighbour_class, _, _ = post_train(model, X + pgd_delta, train_loader, train_loaders_by_class, args)
+        post_model, original_class, neighbour_class, _, _, neighbour_delta = post_train(model, X + pgd_delta, train_loader, train_loaders_by_class, args)
+        print(pgd_delta.shape, neighbour_delta.shape)
+        print("cos sim: {}", cos_sim(pgd_delta, neighbour_delta))
         # evaluate neighbour found
         normal_output_class = int(torch.argmax(model(X)))
         neighbour_acc += 1 if int(y) == int(original_class) or int(y) == int(neighbour_class) else 0
