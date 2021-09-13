@@ -248,7 +248,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             else:
                 data = torch.vstack([original_data, neighbour_data]).to(device)
                 label = torch.hstack([original_label, neighbour_label]).to(device)
-                label_mixup = torch.hstack([original_label_mixup, neighbour_label_mixup]).to(device)
+                # label_mixup = torch.hstack([original_label_mixup, neighbour_label_mixup]).to(device)
 
             if args.mixup:
                 data = merge_images(data, images, 0.7, device)
