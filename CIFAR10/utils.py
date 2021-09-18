@@ -252,6 +252,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             #     min_target_loss = target_loss
             #     neighbour_delta = neighbour_delta_targeted
             target_loss = loss_func(target_output, original_class)
+            print(int(target), float(target_loss))
             if target_loss > max_target_loss:
                 max_target_loss = max_target_loss
                 neighbour_delta = neighbour_delta_targeted
