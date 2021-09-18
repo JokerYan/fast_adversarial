@@ -237,25 +237,25 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
         original_class = torch.argmax(original_output).reshape(1)
 
         # targeted attack to find neighbour
-        # min_target_loss = float('inf')
+        min_target_loss = float('inf')
         max_target_loss = float('-inf')
         neighbour_delta = None
         for target_idx in range(10):
             if target_idx == original_class:
                 continue
-            target = torch.ones_like(original_class)
+            target = torch.ones_like(original_class) * target_idx
             neighbour_delta_targeted = attack_pgd_targeted(model, images, original_class, target, epsilon, alpha,
                                                            attack_iters=20, restarts=1, random_start=args.rs_neigh).detach()
             target_output = fix_model(images + neighbour_delta_targeted)
-            # target_loss = loss_func(target_output, target)
-            # if target_loss < min_target_loss:
-            #     min_target_loss = target_loss
-            #     neighbour_delta = neighbour_delta_targeted
-            target_loss = loss_func(target_output, original_class)
-            print(int(target), float(target_loss))
-            if target_loss > max_target_loss:
-                max_target_loss = max_target_loss
+            target_loss = loss_func(target_output, target)
+            if target_loss < min_target_loss:
+                min_target_loss = target_loss
                 neighbour_delta = neighbour_delta_targeted
+            # target_loss = loss_func(target_output, original_class)
+            # if target_loss > max_target_loss:
+            #     max_target_loss = max_target_loss
+            #     neighbour_delta = neighbour_delta_targeted
+            print(int(target), float(target_loss))
 
         # neighbour_images = attack_model(images, original_class)
         # neighbour_delta = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1,
