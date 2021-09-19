@@ -35,6 +35,8 @@ def main():
     model.float()
     model.eval()
     for images, label in test_loader:
+        images = images.cuda()
+        label = label.cuda()
         for i in range(1000):
             image_delta = attack_pgd(model, images, label, epsilon, alpha, 20, 1).detach()
             adv_output = model(images + image_delta)
