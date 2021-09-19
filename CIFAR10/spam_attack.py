@@ -45,7 +45,7 @@ def main():
             adv_class = torch.argmax(adv_output, dim=1).reshape(1)
             adv_class_dist[int(adv_class)] += 1
 
-            double_image_delta = attack_pgd(model, images + image_delta, label, epsilon, alpha, 20, 1).detach()
+            double_image_delta = attack_pgd(model, images + image_delta, adv_class, epsilon, alpha, 20, 1).detach()
             double_adv_output = model(images + image_delta + double_image_delta)
             double_adv_class = torch.argmax(double_adv_output, dim=1).reshape(1)
             double_adv_class_dist[int(double_adv_class)] += 1
