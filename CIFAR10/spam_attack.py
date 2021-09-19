@@ -58,7 +58,8 @@ def main():
             neighbour_correct += 1
         total += 1
         # print(int(label), adv_class_dist, double_adv_class_dist)
-        print(neighbour_correct / total)
+        print("{:.4f}".format(neighbour_correct / total))
+        print(adv_class_dist, double_adv_class_dist)
 
 if __name__ == '__main__':
     main()
