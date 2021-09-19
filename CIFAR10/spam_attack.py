@@ -37,12 +37,14 @@ def main():
     for images, label in test_loader:
         images = images.cuda()
         label = label.cuda()
+        adv_class_dist = torch.zeros(10)
         for i in range(1000):
             image_delta = attack_pgd(model, images, label, epsilon, alpha, 20, 1).detach()
             adv_output = model(images + image_delta)
             adv_class = torch.argmax(adv_output, dim=1).reshape(1)
-            print(int(adv_class))
-        print()
+            adv_class_dist[int(adv_class)] += 1
+        adv_class_dist = adv_class_dist / torch.sum(adv_class_dist)
+        print(int(label), adv_class_dist)
 
 
 if __name__ == '__main__':
