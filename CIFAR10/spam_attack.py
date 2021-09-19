@@ -54,7 +54,7 @@ def main():
 
         adv_class_dist = adv_class_dist / torch.sum(adv_class_dist)
         double_adv_class_dist = double_adv_class_dist / torch.sum(double_adv_class_dist)
-        if torch.argmax(double_adv_class_dist) == label.cpu():
+        if torch.argmax(double_adv_class_dist) == label.cpu() or torch.argmax(adv_class_dist) == label.cpu():
             neighbour_correct += 1
         total += 1
         # print(int(label), adv_class_dist, double_adv_class_dist)
