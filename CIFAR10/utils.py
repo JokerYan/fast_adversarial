@@ -12,6 +12,7 @@ import numpy as np
 from tqdm import tqdm
 import torchattacks
 
+from CIFAR10.blackbox_dataset import BlackboxDataset
 from loss_surface import calculate_loss_surface
 
 cifar10_mean = (0.4914, 0.4822, 0.4465)
@@ -58,6 +59,22 @@ def get_loaders(dir_, batch_size):
         num_workers=0,
     )
     return train_loader, test_loader
+
+
+def get_blackbox_loader(batch_size):
+    test_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(cifar10_mean, cifar10_std),
+    ])
+    test_dataset = BlackboxDataset("../../data/cifar10_adv_madry.pickle", test_transform)
+    test_loader = torch.utils.data.DataLoader(
+        dataset=test_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        pin_memory=True,
+        num_workers=0,
+    )
+    return test_loader
 
 
 def get_train_loaders_by_class(dir_, batch_size):

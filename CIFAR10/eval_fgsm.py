@@ -5,7 +5,8 @@ import os
 import torch
 
 from preact_resnet import PreActResNet18
-from utils import evaluate_pgd, evaluate_standard, get_loaders, get_train_loaders_by_class, evaluate_pgd_post
+from utils import evaluate_pgd, evaluate_standard, get_loaders, get_train_loaders_by_class, evaluate_pgd_post, \
+    get_blackbox_loader
 
 pretrained_model_path = os.path.join('.', 'pretrained_models', 'cifar_model_weights_30_epochs.pth')
 logger = logging.getLogger(__name__)
@@ -21,6 +22,8 @@ def get_args():
     parser.add_argument('--pt-iter', default=5, type=int)
     parser.set_defaults(rs_neigh=True, type=bool)
     parser.add_argument('--no-rs-neigh', dest='rs_neigh', action='store_false')
+    parser.set_defaults(blackbox=False, type=bool)
+    parser.add_argument('--blackbox', dest='blackbox', action='store_true')
     return parser.parse_args()
 
 
@@ -29,7 +32,10 @@ def main():
     print(args)
     state_dict = torch.load(pretrained_model_path)
 
-    _, test_loader = get_loaders(args.data_dir, batch_size=1)
+    if not args.blackbox:
+        _, test_loader = get_loaders(args.data_dir, batch_size=1)
+    else:
+        test_loader = get_blackbox_loader(batch_size=1)
     train_loader, _ = get_loaders(args.data_dir, batch_size=128)
     train_loaders_by_class = get_train_loaders_by_class(args.data_dir, batch_size=128)
     model_test = PreActResNet18().cuda()
