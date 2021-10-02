@@ -71,6 +71,7 @@ def get_blackbox_loader(batch_size):
         dataset=test_dataset,
         batch_size=batch_size,
         shuffle=False,
+        pin_memory=True,
         num_workers=0,
     )
     return test_loader
