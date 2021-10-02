@@ -63,7 +63,7 @@ def get_loaders(dir_, batch_size):
 
 def get_blackbox_loader(batch_size):
     test_transform = transforms.Compose([
-        transforms.ToTensor(),
+        # transforms.ToTensor(),
         transforms.Normalize(cifar10_mean, cifar10_std),
     ])
     test_dataset = BlackboxDataset("../../data/cifar10_adv_madry.pickle", test_transform)
