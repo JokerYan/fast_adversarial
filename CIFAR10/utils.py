@@ -12,7 +12,7 @@ import numpy as np
 from tqdm import tqdm
 import torchattacks
 
-from CIFAR10.blackbox_dataset import BlackboxDataset
+from blackbox_dataset import BlackboxDataset
 from loss_surface import calculate_loss_surface
 
 cifar10_mean = (0.4914, 0.4822, 0.4465)
