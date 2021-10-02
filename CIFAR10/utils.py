@@ -240,7 +240,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
     model = copy.deepcopy(model)
     # model.train()
     fix_model = copy.deepcopy(model)
-    # attack_model = torchattacks.PGD(model, eps=(8/255)/std, alpha=(2/255)/std, steps=20)
+    attack_model = torchattacks.PGD(model, eps=(8/255)/std, alpha=(2/255)/std, steps=20)
     optimizer = torch.optim.SGD(lr=0.001,
                                 params=model.parameters(),
                                 momentum=0.9,
@@ -253,30 +253,30 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
         original_output = fix_model(images)
         original_class = torch.argmax(original_output).reshape(1)
 
-        # targeted attack to find neighbour
-        min_target_loss = float('inf')
-        max_target_loss = float('-inf')
-        neighbour_delta = None
-        for target_idx in range(10):
-            if target_idx == original_class:
-                continue
-            target = torch.ones_like(original_class) * target_idx
-            neighbour_delta_targeted = attack_pgd_targeted(model, images, original_class, target, epsilon, alpha,
-                                                           attack_iters=20, restarts=1, random_start=args.rs_neigh).detach()
-            target_output = fix_model(images + neighbour_delta_targeted)
-            target_loss = loss_func(target_output, target)
-            if target_loss < min_target_loss:
-                min_target_loss = target_loss
-                neighbour_delta = neighbour_delta_targeted
-            # target_loss = loss_func(target_output, original_class)
-            # if target_loss > max_target_loss:
-            #     max_target_loss = max_target_loss
-            #     neighbour_delta = neighbour_delta_targeted
-            print(int(target), float(target_loss))
+        # # targeted attack to find neighbour
+        # min_target_loss = float('inf')
+        # max_target_loss = float('-inf')
+        # neighbour_delta = None
+        # for target_idx in range(10):
+        #     if target_idx == original_class:
+        #         continue
+        #     target = torch.ones_like(original_class) * target_idx
+        #     neighbour_delta_targeted = attack_pgd_targeted(model, images, original_class, target, epsilon, alpha,
+        #                                                    attack_iters=20, restarts=1, random_start=args.rs_neigh).detach()
+        #     target_output = fix_model(images + neighbour_delta_targeted)
+        #     target_loss = loss_func(target_output, target)
+        #     if target_loss < min_target_loss:
+        #         min_target_loss = target_loss
+        #         neighbour_delta = neighbour_delta_targeted
+        #     # target_loss = loss_func(target_output, original_class)
+        #     # if target_loss > max_target_loss:
+        #     #     max_target_loss = max_target_loss
+        #     #     neighbour_delta = neighbour_delta_targeted
+        #     print(int(target), float(target_loss))
 
-        # neighbour_images = attack_model(images, original_class)
-        # neighbour_delta = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1,
-        #                               random_start=args.rs_neigh).detach()
+        neighbour_images = attack_model(images, original_class)
+        neighbour_delta = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1,
+                                      random_start=args.rs_neigh).detach()
         # noise = ((torch.rand_like(images.detach()) * 2 - 1) * epsilon).to(device)  # uniform rand from [-eps, eps]
         # neighbour_delta += noise
         neighbour_images = neighbour_delta + images
