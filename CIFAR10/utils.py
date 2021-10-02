@@ -274,7 +274,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
         #     #     neighbour_delta = neighbour_delta_targeted
         #     print(int(target), float(target_loss))
 
-        neighbour_images = attack_model(images, original_class)
+        # neighbour_images = attack_model(images, original_class)
         neighbour_delta = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1,
                                       random_start=args.rs_neigh).detach()
         # noise = ((torch.rand_like(images.detach()) * 2 - 1) * epsilon).to(device)  # uniform rand from [-eps, eps]
@@ -392,7 +392,10 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
     for i, (X, y) in enumerate(test_loader):
         n += y.size(0)
         X, y = X.cuda(), y.cuda()
-        pgd_delta = attack_pgd(model, X, y, epsilon, alpha, attack_iters, restarts).detach()
+        if not args.blackbox:
+            pgd_delta = attack_pgd(model, X, y, epsilon, alpha, attack_iters, restarts).detach()
+        else:
+            pgd_delta = torch.zeros_like(X)
         with torch.no_grad():
             output = model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
