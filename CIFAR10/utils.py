@@ -240,8 +240,8 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
     model = copy.deepcopy(model)
     # model.train()
     fix_model = copy.deepcopy(model)
-    attack_model = torchattacks.PGD(model, eps=(8/255)/std, alpha=(2/255)/std, steps=20)
-    optimizer = torch.optim.SGD(lr=0.01,
+    # attack_model = torchattacks.PGD(model, eps=(8/255)/std, alpha=(2/255)/std, steps=20)
+    optimizer = torch.optim.SGD(lr=0.001,
                                 params=model.parameters(),
                                 momentum=0.9,
                                 nesterov=True)
