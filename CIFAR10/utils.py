@@ -325,17 +325,17 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             if args.mixup:
                 data = merge_images(data, images, 0.7, device)
 
-            # generate fgsm adv examplesp
-            delta = (torch.rand_like(data) * 2 - 1) * epsilon  # uniform rand from [-eps, eps]
-            noise_input = data + delta
-            noise_input.requires_grad = True
-            noise_output = model(noise_input)
-            loss = loss_func(noise_output, label)  # loss to be maximized
-            # loss = target_bce_loss_func(noise_output, label, original_class, neighbour_class)  # bce loss to be maximized
-            input_grad = torch.autograd.grad(loss, noise_input)[0]
-            delta = delta + alpha * torch.sign(input_grad)
-            delta.clamp_(-epsilon, epsilon)
-            adv_input = data + delta
+            # # generate fgsm adv examplesp
+            # delta = (torch.rand_like(data) * 2 - 1) * epsilon  # uniform rand from [-eps, eps]
+            # noise_input = data + delta
+            # noise_input.requires_grad = True
+            # noise_output = model(noise_input)
+            # loss = loss_func(noise_output, label)  # loss to be maximized
+            # # loss = target_bce_loss_func(noise_output, label, original_class, neighbour_class)  # bce loss to be maximized
+            # input_grad = torch.autograd.grad(loss, noise_input)[0]
+            # delta = delta + alpha * torch.sign(input_grad)
+            # delta.clamp_(-epsilon, epsilon)
+            # adv_input = data + delta
 
             # use fixed direction attack
             # print((torch.randint(0, 2, size=(len(data),)) - 0.5))
@@ -343,7 +343,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             # adv_input = data + (torch.rand_like(data) - 0.5).to(device) * 2 * neighbour_delta
             # adv_input = data + -1 * torch.rand_like(data).to(device) * neighbour_delta
             # adv_input = data + (torch.randint(0, 2, size=()) - 0.5).to(device) * 2 * neighbour_delta
-            # adv_input = data + -1 * neighbour_delta
+            adv_input = data + -1 * neighbour_delta
             # directed_delta = torch.vstack([torch.ones_like(original_data).to(device) * neighbour_delta,
             #                                 torch.ones_like(neighbour_data).to(device) * -1 * neighbour_delta])
             # adv_input = data + directed_delta
