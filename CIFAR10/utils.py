@@ -231,7 +231,6 @@ def mixup_loss(loss_func, output, stack_labels, ratio):
     return loss_first + loss_second
 
 
-
 def post_train(model, images, train_loader, train_loaders_by_class, args):
     alpha = (10 / 255) / std
     epsilon = (8 / 255) / std
@@ -311,8 +310,8 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
                 neighbour_data, neighbour_label = next(iter(train_loaders_by_class[neighbour_class]))
 
             # # ori neigh mixup
-            original_data, neighbour_data, original_label_mixup, neighbour_label_mixup = \
-                merge_images_and_labels(original_data, neighbour_data, original_label, neighbour_label, 0.7, device)
+            # original_data, neighbour_data, original_label_mixup, neighbour_label_mixup = \
+            #     merge_images_and_labels(original_data, neighbour_data, original_label, neighbour_label, 0.7, device)
 
             if args.pt_data == 'ori_neigh_train':
                 data = torch.vstack([original_data, neighbour_data, train_data]).to(device)
@@ -320,7 +319,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             else:
                 data = torch.vstack([original_data, neighbour_data]).to(device)
                 label = torch.hstack([original_label, neighbour_label]).to(device)
-                label_mixup = torch.hstack([original_label_mixup, neighbour_label_mixup]).to(device)
+                # label_mixup = torch.hstack([original_label_mixup, neighbour_label_mixup]).to(device)
 
             if args.mixup:
                 data = merge_images(data, images, 0.7, device)
@@ -355,8 +354,8 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             else:
                 raise NotImplementedError
             # adv_class = torch.argmax(adv_output)
-            # loss_pos = loss_func(adv_output, label)
-            loss_pos = mixup_loss(loss_func, adv_output, label_mixup, 0.7)
+            loss_pos = loss_func(adv_output, label)
+            # loss_pos = mixup_loss(loss_func, adv_output, label_mixup, 0.7)
             # loss_neg = loss_func(adv_output, target)
             # bce_loss = target_bce_loss_func(adv_output, label, original_class, neighbour_class)
             # bl_loss = target_bl_loss_func(adv_output, label, original_class, neighbour_class)
