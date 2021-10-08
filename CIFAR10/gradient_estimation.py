@@ -99,8 +99,18 @@ def main():
         #     print("normal gradient:", float(gradient))
         '''
 
+        # gradient gt
+        images.requires_grad = True
+        output = post_model(images, post=True)
+        loss = loss_func(output, labels)
+        all_gradient = torch.autograd.grad(loss, images)[0]
+        print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
+        print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
+        print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
+
         # boundary attack estimate
-        theta = torch.rand_like(images)
+        # theta = torch.rand_like(images)
+        theta = all_gradient.detach()
         theta = theta / torch.linalg.norm(theta, ord=2, dim=1)
         print(theta.shape)
         beta = 0.005
@@ -111,15 +121,6 @@ def main():
         print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
         print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
         print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
-
-        # gradient gt
-        images.requires_grad = True
-        output = post_model(images, post=True)
-        loss = loss_func(output, labels)
-        all_gradient = torch.autograd.grad(loss, images)[0]
-        print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
-        print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
-        print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
 
         print()
         if i == 3:
