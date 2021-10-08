@@ -40,24 +40,24 @@ def main():
         labels = labels.cuda()
         unit_error = torch.zeros_like(images)
         unit_error[0][pixel_c][pixel_x][pixel_y] = 1
-        # for j in range(repeat_count):
-        #     images_pos = copy.deepcopy(images).detach() + unit_error * step_size
-        #     images_neg = copy.deepcopy(images).detach() - unit_error * step_size
-        #     output_pos = post_model(images_pos).detach()
-        #     output_neg = post_model(images_neg).detach()
-        #     loss_pos = loss_func(output_pos, labels)
-        #     loss_neg = loss_func(output_neg, labels)
-        #     gradient = (loss_pos - loss_neg) / (2 * step_size)
-        #     print("post gradient:", gradient)
-        # for j in range(repeat_count):
-        #     images_pos = copy.deepcopy(images).detach() + unit_error * step_size
-        #     images_neg = copy.deepcopy(images).detach() - unit_error * step_size
-        #     output_pos = post_model(images_pos, post=False).detach()
-        #     output_neg = post_model(images_neg, post=False).detach()
-        #     loss_pos = loss_func(output_pos, labels)
-        #     loss_neg = loss_func(output_neg, labels)
-        #     gradient = (loss_pos - loss_neg) / (2 * step_size)
-        #     print("normal gradient:", gradient)
+        for j in range(repeat_count):
+            images_pos = copy.deepcopy(images).detach() + unit_error * step_size
+            images_neg = copy.deepcopy(images).detach() - unit_error * step_size
+            output_pos = post_model(images_pos).detach()
+            output_neg = post_model(images_neg).detach()
+            loss_pos = loss_func(output_pos, labels)
+            loss_neg = loss_func(output_neg, labels)
+            gradient = (loss_pos - loss_neg) / (2 * step_size)
+            print("post gradient:", gradient)
+        for j in range(repeat_count):
+            images_pos = copy.deepcopy(images).detach() + unit_error * step_size
+            images_neg = copy.deepcopy(images).detach() - unit_error * step_size
+            output_pos = post_model(images_pos, post=False).detach()
+            output_neg = post_model(images_neg, post=False).detach()
+            loss_pos = loss_func(output_pos, labels)
+            loss_neg = loss_func(output_neg, labels)
+            gradient = (loss_pos - loss_neg) / (2 * step_size)
+            print("normal gradient:", gradient)
 
         # gradient gt
         images.requires_grad = True
