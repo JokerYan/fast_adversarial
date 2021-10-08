@@ -12,7 +12,7 @@ from boundary_attack_utils import fine_grained_binary_search
 
 repeat_count = 5
 step_size = 0.001
-pixel_x = 13
+pixel_x = 16
 pixel_y = 16
 pixel_c = 0
 
@@ -120,7 +120,10 @@ def main():
         print("gt gradient:", float(all_gradient[0][pixel_c][pixel_x][pixel_y]))
         print("gt gradient:", float(all_gradient[0][pixel_c+1][pixel_x][pixel_y]))
         print("gt gradient:", float(all_gradient[0][pixel_c+2][pixel_x][pixel_y]))
-        break
+
+        print()
+        if i == 3:
+            break
 
 
 if __name__ == '__main__':
