@@ -48,7 +48,16 @@ def main():
             loss_pos = loss_func(output_pos, labels)
             loss_neg = loss_func(output_neg, labels)
             gradient = (loss_pos - loss_neg) / (2 * step_size)
-            print(gradient)
+            print("post gradient:", gradient)
+        for j in range(repeat_count):
+            images_pos = copy.deepcopy(images).detach() + unit_error * step_size
+            images_neg = copy.deepcopy(images).detach() - unit_error * step_size
+            output_pos = post_model(images_pos, post=False).detach()
+            output_neg = post_model(images_neg, post=False).detach()
+            loss_pos = loss_func(output_pos, labels)
+            loss_neg = loss_func(output_neg, labels)
+            gradient = (loss_pos - loss_neg) / (2 * step_size)
+            print("normal gradient:", gradient)
         break
 
 
