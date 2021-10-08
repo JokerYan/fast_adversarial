@@ -105,8 +105,8 @@ def main():
         print(theta.shape)
         beta = 0.005
         u = torch.randn_like(theta)
-        g0 = fine_grained_binary_search(post_model, images, labels, theta)
-        g1 = fine_grained_binary_search(post_model, images, labels, theta + beta * u)
+        g0, _ = fine_grained_binary_search(post_model, images, labels, theta)
+        g1, _ = fine_grained_binary_search(post_model, images, labels, theta + beta * u)
         all_gradient = (g1 - g0) / beta * u
         print("boundary gradient:", float(all_gradient[0][pixel_c][pixel_x][pixel_y]))
 
