@@ -10,7 +10,7 @@ from utils import get_loaders
 
 
 repeat_count = 5
-step_size = 0.0001
+step_size = 0.001
 pixel_x = 16
 pixel_y = 16
 pixel_c = 0
