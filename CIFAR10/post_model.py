@@ -1,19 +1,38 @@
 import argparse
+import os
 
 import torch
 import torch.nn as nn
 
+from preact_resnet import PreActResNet18
 from utils import get_loaders, get_train_loaders_by_class, post_train
 
+pretrained_model_path = os.path.join('.', 'pretrained_models', 'cifar_model_weights_30_epochs.pth')
+
+class DummyArgs:
+    def __init__(self):
+        self.data_dir = '../../cifar-data'
+        self.mixup = False
+        self.pt_data = 'ori_neigh'
+        self.pt_method = 'adv'
+        self.pt_iter = 50
+        self.rs_neigh = False
+        self.blackbox = False
 
 class PostModel(nn.Module):
-    def __init__(self, model, args=None):
+    def __init__(self, model=None, args=None):
         super().__init__()
+
+        if model is None:
+            state_dict = torch.load(pretrained_model_path)
+            model = PreActResNet18().cuda()
+            model.load_state_dict(state_dict)
+            model.float()
+            model.eval()
         self.model = model
 
         if args is None:
-            parser = argparse.ArgumentParser()
-            args = parser.parse_args()
+            args = DummyArgs()
         self.args = args
 
         self.train_loader, _ = get_loaders(self.args.data_dir, batch_size=128)
