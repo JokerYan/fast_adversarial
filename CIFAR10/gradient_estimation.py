@@ -12,7 +12,7 @@ from boundary_attack_utils import fine_grained_binary_search
 
 repeat_count = 5
 step_size = 0.001
-pixel_x = 16
+pixel_x = 13
 pixel_y = 16
 pixel_c = 0
 
