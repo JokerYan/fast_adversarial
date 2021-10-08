@@ -66,16 +66,17 @@ def main():
 
             sum_output_pos = torch.zeros_like(output_pos)
             sum_output_neg = torch.zeros_like(output_neg)
-            for k in range(100):
+
+            average_count = 100
+            for k in range(average_count):
                 # add noise
                 output_pos_noise = torch.randn_like(output_pos) * 0.03 + 1
                 output_neg_noise = torch.randn_like(output_neg) * 0.03 + 1
                 sum_output_pos += output_pos * output_pos_noise
                 sum_output_neg += output_neg * output_neg_noise
 
-            output_pos = torch.mean(sum_output_pos, dim=0)
-            output_neg = torch.mean(sum_output_neg, dim=0)
-            print(output_pos.shape)
+            output_pos = sum_output_pos / average_count
+            output_neg = sum_output_neg / average_count
 
             loss_pos = loss_func(output_pos, labels)
             loss_neg = loss_func(output_neg, labels)
