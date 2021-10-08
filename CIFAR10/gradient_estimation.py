@@ -7,6 +7,7 @@ import numpy as np
 
 from post_model import PostModel
 from utils import get_loaders
+from boundary_attack_utils import fine_grained_binary_search
 
 
 repeat_count = 5
@@ -32,7 +33,7 @@ def get_args():
 
 def main():
     args = get_args()
-    post_model = PostModel(model=None, args=args)
+    post_model = PostModel(model=None, args=args, post=False)
     _, test_loader = get_loaders(args.data_dir, batch_size=1)
     loss_func = nn.CrossEntropyLoss()
     for i, (images, labels) in enumerate(test_loader):
@@ -40,6 +41,9 @@ def main():
         labels = labels.cuda()
         unit_error = torch.zeros_like(images)
         unit_error[0][pixel_c][pixel_x][pixel_y] = 1
+
+        '''
+        ## post model estimate
         # for j in range(repeat_count):
         #     images_pos = copy.deepcopy(images).detach() + unit_error * step_size
         #     images_neg = copy.deepcopy(images).detach() - unit_error * step_size
@@ -49,6 +53,8 @@ def main():
         #     loss_neg = loss_func(output_neg, labels)
         #     gradient = (loss_pos - loss_neg) / (2 * step_size)
         #     print("post gradient:", float(gradient))
+
+        ## normal model estimate
         # for j in range(repeat_count):
         #     images_pos = copy.deepcopy(images).detach() + unit_error * step_size
         #     images_neg = copy.deepcopy(images).detach() - unit_error * step_size
@@ -58,6 +64,8 @@ def main():
         #     loss_neg = loss_func(output_neg, labels)
         #     gradient = (loss_pos - loss_neg) / (2 * step_size)
         #     print("normal gradient:", float(gradient))
+
+        ## normal model with output noise estimate
         # for j in range(repeat_count):
         #     images_pos = copy.deepcopy(images).detach() + unit_error * step_size
         #     images_neg = copy.deepcopy(images).detach() - unit_error * step_size
@@ -80,30 +88,26 @@ def main():
         #     loss_neg = loss_func(output_neg, labels)
         #     gradient = (loss_pos - loss_neg) / (2 * step_size)
         #     print("normal gradient:", float(gradient))
-        for j in range(repeat_count):
-            images_pos = copy.deepcopy(images).detach() + unit_error * step_size
-            images_neg = copy.deepcopy(images).detach() - unit_error * step_size
-            output_pos = post_model(images_pos, post=False).detach()
-            output_neg = post_model(images_neg, post=False).detach()
-            sum_output_pos = torch.zeros_like(output_pos)
-            sum_output_neg = torch.zeros_like(output_neg)
+        # for j in range(repeat_count):
+        #     images_pos = copy.deepcopy(images).detach() + unit_error * step_size
+        #     images_neg = copy.deepcopy(images).detach() - unit_error * step_size
+        #     output_pos = post_model(images_pos, post=False).detach()
+        #     output_neg = post_model(images_neg, post=False).detach()
+        #     loss_pos = loss_func(output_pos, labels)
+        #     loss_neg = loss_func(output_neg, labels)
+        #     gradient = (loss_pos - loss_neg) / (2 * step_size)
+        #     print("normal gradient:", float(gradient))
+        '''
 
-            average_count = 1000
-            for k in range(average_count):
-                # add noise
-                images_pos_noise = torch.randn_like(images) * step_size / 5
-                images_neg_noise = torch.randn_like(images) * step_size / 5
-                output_pos = post_model(images_pos + images_pos_noise, post=False).detach()
-                output_neg = post_model(images_neg + images_neg_noise, post=False).detach()
-                sum_output_pos += output_pos
-                sum_output_neg += output_neg
-            output_pos = sum_output_pos / average_count
-            output_neg = sum_output_neg / average_count
-
-            loss_pos = loss_func(output_pos, labels)
-            loss_neg = loss_func(output_neg, labels)
-            gradient = (loss_pos - loss_neg) / (2 * step_size)
-            print("normal gradient:", float(gradient))
+        # boundary attack estimate
+        theta = torch.rand_like(images)
+        theta = theta / torch.linalg.norm(theta, p=2)
+        beta = 0.005
+        u = torch.randn_like(theta)
+        g0 = fine_grained_binary_search(post_model, images, labels, theta)
+        g1 = fine_grained_binary_search(post_model, images, labels, theta + beta * u)
+        all_gradient = (g1 - g0) / beta * u
+        print("boundary gradient:", float(all_gradient[0][pixel_c][pixel_x][pixel_y]))
 
         # gradient gt
         images.requires_grad = True

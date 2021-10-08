@@ -20,8 +20,9 @@ class DummyArgs:
         self.blackbox = False
 
 class PostModel(nn.Module):
-    def __init__(self, model=None, args=None):
+    def __init__(self, model=None, args=None, post=True):
         super().__init__()
+        self.post = post
 
         if model is None:
             state_dict = torch.load(pretrained_model_path)
@@ -39,7 +40,7 @@ class PostModel(nn.Module):
         self.train_loaders_by_class = get_train_loaders_by_class(self.args.data_dir, batch_size=128)
 
     def forward(self, images, post=True):
-        if post:
+        if self.post and post:
             post_model, original_class, neighbour_class, loss_list, acc_list, neighbour_delta = \
                 post_train(self.model, images, self.train_loader, self.train_loaders_by_class, self.args)
         else:
