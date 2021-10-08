@@ -61,7 +61,7 @@ def main():
 
         # gradient gt
         images.requires_grad = True
-        output = post_model(images, post=False)
+        output = post_model(images, post=True)
         loss = loss_func(output, labels)
         all_gradient = torch.autograd.grad(loss, images)[0]
         print("gt gradient:", all_gradient[0][pixel_c][pixel_x][pixel_y])
