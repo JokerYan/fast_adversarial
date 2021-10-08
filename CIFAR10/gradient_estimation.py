@@ -49,22 +49,36 @@ def main():
         #     loss_neg = loss_func(output_neg, labels)
         #     gradient = (loss_pos - loss_neg) / (2 * step_size)
         #     print("post gradient:", float(gradient))
+        # for j in range(repeat_count):
+        #     images_pos = copy.deepcopy(images).detach() + unit_error * step_size
+        #     images_neg = copy.deepcopy(images).detach() - unit_error * step_size
+        #     output_pos = post_model(images_pos, post=False).detach()
+        #     output_neg = post_model(images_neg, post=False).detach()
+        #     loss_pos = loss_func(output_pos, labels)
+        #     loss_neg = loss_func(output_neg, labels)
+        #     gradient = (loss_pos - loss_neg) / (2 * step_size)
+        #     print("normal gradient:", float(gradient))
         for j in range(repeat_count):
             images_pos = copy.deepcopy(images).detach() + unit_error * step_size
             images_neg = copy.deepcopy(images).detach() - unit_error * step_size
             output_pos = post_model(images_pos, post=False).detach()
             output_neg = post_model(images_neg, post=False).detach()
 
-            # add noise
-            output_pos_noise = torch.randn_like(output_pos) * 0.05 + 1
-            output_neg_noise = torch.randn_like(output_neg) * 0.05 + 1
-            print(output_pos_noise)
-            print(output_neg_noise)
+            sum_output_pos = torch.zeros_like(output_pos)
+            sum_output_neg = torch.zeros_like(output_neg)
+            for k in range(100):
+                # add noise
+                output_pos_noise = torch.randn_like(output_pos) * 0.03 + 1
+                output_neg_noise = torch.randn_like(output_neg) * 0.03 + 1
+                sum_output_pos += output_pos * output_pos_noise
+                sum_output_neg += output_neg * output_neg_noise
 
-            # loss_pos = loss_func(output_pos, labels)
-            # loss_neg = loss_func(output_neg, labels)
-            loss_pos = loss_func(output_pos * output_pos_noise, labels)
-            loss_neg = loss_func(output_neg * output_neg_noise, labels)
+            output_pos = torch.mean(sum_output_pos, dim=0)
+            output_neg = torch.mean(sum_output_neg, dim=0)
+            print(output_pos.shape)
+
+            loss_pos = loss_func(output_pos, labels)
+            loss_neg = loss_func(output_neg, labels)
             gradient = (loss_pos - loss_neg) / (2 * step_size)
             print("normal gradient:", float(gradient))
 
