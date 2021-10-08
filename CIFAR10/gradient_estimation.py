@@ -64,7 +64,7 @@ def main():
         output = post_model(images, post=False)
         loss = loss_func(output, labels)
         all_gradient = torch.autograd.grad(loss, images)[0]
-        print(all_gradient.shape)
+        print("gt gradient:", all_gradient[0][pixel_c][pixel_x][pixel_y])
         break
 
 
