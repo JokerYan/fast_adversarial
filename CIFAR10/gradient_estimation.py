@@ -58,28 +58,47 @@ def main():
         #     loss_neg = loss_func(output_neg, labels)
         #     gradient = (loss_pos - loss_neg) / (2 * step_size)
         #     print("normal gradient:", float(gradient))
+        # for j in range(repeat_count):
+        #     images_pos = copy.deepcopy(images).detach() + unit_error * step_size
+        #     images_neg = copy.deepcopy(images).detach() - unit_error * step_size
+        #     output_pos = post_model(images_pos, post=False).detach()
+        #     output_neg = post_model(images_neg, post=False).detach()
+        #
+        #     sum_output_pos = torch.zeros_like(output_pos)
+        #     sum_output_neg = torch.zeros_like(output_neg)
+        #     average_count = 10000
+        #     for k in range(average_count):
+        #         # add noise
+        #         output_pos_noise = torch.randn_like(output_pos) * 0.03 + 1
+        #         output_neg_noise = torch.randn_like(output_neg) * 0.03 + 1
+        #         sum_output_pos += output_pos * output_pos_noise
+        #         sum_output_neg += output_neg * output_neg_noise
+        #     output_pos = sum_output_pos / average_count
+        #     output_neg = sum_output_neg / average_count
+        #
+        #     loss_pos = loss_func(output_pos, labels)
+        #     loss_neg = loss_func(output_neg, labels)
+        #     gradient = (loss_pos - loss_neg) / (2 * step_size)
+        #     print("normal gradient:", float(gradient))
         for j in range(repeat_count):
             images_pos = copy.deepcopy(images).detach() + unit_error * step_size
             images_neg = copy.deepcopy(images).detach() - unit_error * step_size
             output_pos = post_model(images_pos, post=False).detach()
-            output_neg = post_model(images_neg, post=False).detach()\
-
-            print(output_pos)
-
+            output_neg = post_model(images_neg, post=False).detach()
             sum_output_pos = torch.zeros_like(output_pos)
             sum_output_neg = torch.zeros_like(output_neg)
 
-            average_count = 10000
+            average_count = 1000
             for k in range(average_count):
                 # add noise
-                output_pos_noise = torch.randn_like(output_pos) * 0.03 + 1
-                output_neg_noise = torch.randn_like(output_neg) * 0.03 + 1
-                sum_output_pos += output_pos * output_pos_noise
-                sum_output_neg += output_neg * output_neg_noise
-
+                images_pos_noise = torch.randn_like(images) * step_size / 2
+                images_neg_noise = torch.randn_like(images) * step_size / 2
+                output_pos = post_model(images_pos + images_pos_noise, post=False).detach()
+                output_neg = post_model(images_neg + images_neg_noise, post=False).detach()
+                sum_output_pos += output_pos
+                sum_output_neg += output_neg
             output_pos = sum_output_pos / average_count
             output_neg = sum_output_neg / average_count
-            print(output_pos)
 
             loss_pos = loss_func(output_pos, labels)
             loss_neg = loss_func(output_neg, labels)
