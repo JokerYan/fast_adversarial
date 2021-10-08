@@ -109,6 +109,8 @@ def main():
         g1, _ = fine_grained_binary_search(post_model, images, labels, theta + beta * u)
         all_gradient = (g1 - g0) / beta * u
         print("boundary gradient:", float(all_gradient[0][pixel_c][pixel_x][pixel_y]))
+        print("boundary gradient:", float(all_gradient[0][pixel_c+1][pixel_x][pixel_y]))
+        print("boundary gradient:", float(all_gradient[0][pixel_c+2][pixel_x][pixel_y]))
 
         # gradient gt
         images.requires_grad = True
@@ -116,6 +118,8 @@ def main():
         loss = loss_func(output, labels)
         all_gradient = torch.autograd.grad(loss, images)[0]
         print("gt gradient:", float(all_gradient[0][pixel_c][pixel_x][pixel_y]))
+        print("gt gradient:", float(all_gradient[0][pixel_c+1][pixel_x][pixel_y]))
+        print("gt gradient:", float(all_gradient[0][pixel_c+2][pixel_x][pixel_y]))
         break
 
 
