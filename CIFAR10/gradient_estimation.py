@@ -91,8 +91,8 @@ def main():
             average_count = 1000
             for k in range(average_count):
                 # add noise
-                images_pos_noise = torch.randn_like(images) * step_size / 2
-                images_neg_noise = torch.randn_like(images) * step_size / 2
+                images_pos_noise = torch.randn_like(images) * step_size / 5
+                images_neg_noise = torch.randn_like(images) * step_size / 5
                 output_pos = post_model(images_pos + images_pos_noise, post=False).detach()
                 output_neg = post_model(images_neg + images_neg_noise, post=False).detach()
                 sum_output_pos += output_pos
