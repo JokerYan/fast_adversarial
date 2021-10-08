@@ -35,7 +35,7 @@ def main():
     post_model = PostModel(model=None, args=args)
     _, test_loader = get_loaders(args.data_dir, batch_size=1)
     loss_func = nn.CrossEntropyLoss()
-    for i, (images, labels) in range(test_loader):
+    for i, (images, labels) in enumerate(test_loader):
         unit_error = torch.zeros_like(images)
         unit_error[0][pixel_c][pixel_x][pixel_y] = 1
         for j in range(repeat_count):
