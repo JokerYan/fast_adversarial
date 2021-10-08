@@ -111,7 +111,7 @@ def main():
             # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
             # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
         cos_sim = nn.CosineSimilarity(dim=0)
-        angle = cos_sim(all_gradient_list[0], all_gradient_list[1])
+        angle = cos_sim(all_gradient_list[0].view(-1), all_gradient_list[1].view(-1))
         print("cosine sim: ", angle)
 
         # # gradient gt normal model with noise in output
