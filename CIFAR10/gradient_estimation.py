@@ -99,11 +99,22 @@ def main():
         #     print("normal gradient:", float(gradient))
         '''
 
-        # gradient gt
+        # gradient gt post model
         for j in range(10):
             images.requires_grad = True
             output = post_model(images, post=True)
             loss = loss_func(output, labels)
+            all_gradient = torch.autograd.grad(loss, images)[0]
+            print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
+            # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
+            # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
+
+        # gradient gt normal model with noise in output
+        for j in range(10):
+            images.requires_grad = True
+            output = post_model(images, post=False)
+            output_noise = torch.randn_like(output) * 0.03 + 1
+            loss = loss_func(output * output_noise, labels)
             all_gradient = torch.autograd.grad(loss, images)[0]
             print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
             # print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
