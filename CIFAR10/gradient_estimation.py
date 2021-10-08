@@ -69,7 +69,7 @@ def main():
             sum_output_pos = torch.zeros_like(output_pos)
             sum_output_neg = torch.zeros_like(output_neg)
 
-            average_count = 1000
+            average_count = 10000
             for k in range(average_count):
                 # add noise
                 output_pos_noise = torch.randn_like(output_pos) * 0.03 + 1
