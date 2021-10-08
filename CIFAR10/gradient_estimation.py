@@ -101,7 +101,8 @@ def main():
 
         # boundary attack estimate
         theta = torch.rand_like(images)
-        theta = theta / torch.linalg.norm(theta, ord=2)
+        theta = theta / torch.linalg.norm(theta, ord=2, dim=1)
+        print(theta.shape)
         beta = 0.005
         u = torch.randn_like(theta)
         g0 = fine_grained_binary_search(post_model, images, labels, theta)
