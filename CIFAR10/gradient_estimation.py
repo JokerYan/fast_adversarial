@@ -195,17 +195,17 @@ def main():
         post_same_dir_estimate_ratio_list.append(gradient_same_dir_ratio)
         print("post gradient estimate same ratio:", gradient_same_dir_ratio)
 
-        print()
         if len(post_cos_sim_list) >= 10:
             break
-    print("post cos sim avg:", torch.mean(torch.Tensor(post_cos_sim_list)))
-    print("noise cos sim avg:", torch.mean(torch.Tensor(noise_cos_sim_list)))
-    # print("normal acc avg:", torch.mean(torch.Tensor(normal_acc_list)))
-    # print("post acc avg:", torch.mean(torch.Tensor(post_acc_list)))
-    # print("noise acc avg:", torch.mean(torch.Tensor(noise_acc_list)))
-    print("post same dir ratio:", torch.mean(torch.Tensor(post_same_dir_ratio_list)))
-    print("post same dir boundary ratio:", torch.mean(torch.Tensor(post_same_dir_boundary_ratio_list)))
-    print("post same dir estimate ratio:", torch.mean(torch.Tensor(post_same_dir_estimate_ratio_list)))
+        print("post cos sim avg:", torch.mean(torch.Tensor(post_cos_sim_list)))
+        print("noise cos sim avg:", torch.mean(torch.Tensor(noise_cos_sim_list)))
+        # print("normal acc avg:", torch.mean(torch.Tensor(normal_acc_list)))
+        # print("post acc avg:", torch.mean(torch.Tensor(post_acc_list)))
+        # print("noise acc avg:", torch.mean(torch.Tensor(noise_acc_list)))
+        print("post same dir ratio:", torch.mean(torch.Tensor(post_same_dir_ratio_list)))
+        print("post same dir boundary ratio:", torch.mean(torch.Tensor(post_same_dir_boundary_ratio_list)))
+        print("post same dir estimate ratio:", torch.mean(torch.Tensor(post_same_dir_estimate_ratio_list)))
+        print()
 
 
 if __name__ == '__main__':
