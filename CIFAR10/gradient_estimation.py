@@ -44,6 +44,7 @@ def main():
     post_cos_sim_list = []
     noise_cos_sim_list = []
     for i, (images, labels) in enumerate(test_loader):
+        print(i)
         images = images.cuda()
         labels = labels.cuda()
         unit_error = torch.zeros_like(images)
@@ -169,7 +170,7 @@ def main():
         # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
 
         print()
-        if len(post_cos_sim_list) >= 10:
+        if len(post_cos_sim_list) >= 300:
             break
     print("post cos sim avg:", torch.mean(torch.Tensor(post_cos_sim_list)))
     print("noise cos sim avg:", torch.mean(torch.Tensor(noise_cos_sim_list)))
