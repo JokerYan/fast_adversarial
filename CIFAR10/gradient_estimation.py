@@ -104,7 +104,6 @@ def main():
 
         # gradient gt post model
         all_gradient_list = []
-        ref_output = post_model(images, post=False)
         modified = True
         for j in range(2):
             images.requires_grad = True
@@ -115,9 +114,7 @@ def main():
             # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
             # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
             # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
-            print(ref_output)
-            print(output)
-            if ref_output == output:
+            if not post_model.model_modified:
                 print("model not modified in post train")
                 modified = False
                 break

@@ -22,7 +22,6 @@ class DummyArgs:
 class PostModel(nn.Module):
     def __init__(self, model=None, args=None, post=True):
         super().__init__()
-        self.post = post
 
         if model is None:
             state_dict = torch.load(pretrained_model_path)
@@ -39,10 +38,15 @@ class PostModel(nn.Module):
         self.train_loader, _ = get_loaders(self.args.data_dir, batch_size=128)
         self.train_loaders_by_class = get_train_loaders_by_class(self.args.data_dir, batch_size=128)
 
+        self.post = post
+        self.model_modified = False  # whether the post train modified the model in the last reference
+
     def forward(self, images, post=True):
         if self.post and post:
             post_model, original_class, neighbour_class, loss_list, acc_list, neighbour_delta = \
                 post_train(self.model, images, self.train_loader, self.train_loaders_by_class, self.args)
+            self.model_modified = True if loss_list is not None else False
+            return post_model(images)
         else:
-            post_model = self.model
-        return post_model(images)
+            self.model_modified = False
+            return self.model(images)
