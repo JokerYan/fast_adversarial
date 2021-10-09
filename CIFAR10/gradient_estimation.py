@@ -15,7 +15,7 @@ step_size = 0.001
 pixel_x = 16
 pixel_y = 16
 pixel_c = 0
-noise_ratio = 0.1
+noise_ratio = 0.2
 
 def get_args():
     parser = argparse.ArgumentParser()
