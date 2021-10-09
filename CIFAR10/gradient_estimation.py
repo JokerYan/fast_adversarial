@@ -130,7 +130,7 @@ def main():
         for j in range(2):
             images.requires_grad = True
             output = post_model(images, post=False)
-            output_noise = torch.randn_like(output) * 0.03 + 1
+            output_noise = torch.randn_like(output) * 0.1 + 1
             loss = loss_func(output * output_noise, labels)
             all_gradient = torch.autograd.grad(loss, images)[0]
             all_gradient_list.append(all_gradient)
@@ -156,7 +156,7 @@ def main():
         # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
 
         print()
-        if i == 20:
+        if len(post_cos_sim_list) >= 20:
             break
     print("post avg:", torch.mean(torch.Tensor(post_cos_sim_list)))
     print("noise avg:", torch.mean(torch.Tensor(noise_cos_sim_list)))
