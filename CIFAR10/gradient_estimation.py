@@ -131,6 +131,7 @@ def main():
             images.requires_grad = True
             output = post_model(images, post=False)
             output_noise = torch.randn_like(output) * 0.2 + 1
+            print(output_noise)
             print(torch.argmax(output))
             print(torch.argmax(output * output_noise))
             loss = loss_func(output * output_noise, labels)
