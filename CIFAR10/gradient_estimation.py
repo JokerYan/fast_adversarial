@@ -133,7 +133,7 @@ def main():
         # print(all_gradient_list[0][0][0][16][16])
         # print(all_gradient_list[1][0][0][16][16])
         gradient_direction = all_gradient_list[0] * all_gradient_list[1]
-        gradient_same_dir_ratio = torch.mean(torch.where(gradient_direction > 0, torch.zeros_like(gradient_direction), torch.ones_like(gradient_direction)))
+        gradient_same_dir_ratio = torch.mean(torch.where(gradient_direction > 0, torch.ones_like(gradient_direction), torch.zeros_like(gradient_direction)))
         print("post gradient same ratio:", gradient_same_dir_ratio)
         cos_sim = cos_sim_func(all_gradient_list[0].view(-1), all_gradient_list[1].view(-1))
         post_cos_sim_list.append(cos_sim)
@@ -157,7 +157,7 @@ def main():
             noise_acc_list.append(acc)
 
         gradient_direction = all_gradient_list[0] * all_gradient_list[1]
-        gradient_same_dir_ratio = torch.mean(torch.where(gradient_direction > 0, torch.zeros_like(gradient_direction), torch.ones_like(gradient_direction)))
+        gradient_same_dir_ratio = torch.mean(torch.where(gradient_direction > 0, torch.ones_like(gradient_direction), torch.zeros_like(gradient_direction)))
         print("noise gradient same ratio:", gradient_same_dir_ratio)
         cos_sim = cos_sim_func(all_gradient_list[0].view(-1), all_gradient_list[1].view(-1))
         noise_cos_sim_list.append(cos_sim)
