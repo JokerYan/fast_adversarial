@@ -163,6 +163,7 @@ def main():
         all_gradient_list = []
         for j in range(2):
             post_model_fix = post_model.get_post_model(images)
+            print("post model get for boundary estimation")
             g0, _ = fine_grained_binary_search(post_model_fix, images, labels, theta)
             g1, _ = fine_grained_binary_search(post_model_fix, images, labels, theta + beta * u)
             all_gradient = (g1 - g0) / beta * u
