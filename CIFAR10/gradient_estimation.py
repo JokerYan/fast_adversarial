@@ -15,7 +15,7 @@ step_size = 0.001
 pixel_x = 16
 pixel_y = 16
 pixel_c = 0
-noise_ratio = 0.2
+noise_ratio = 0.4
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -44,7 +44,7 @@ def main():
     post_cos_sim_list = []
     noise_cos_sim_list = []
     for i, (images, labels) in enumerate(test_loader):
-        print(i)
+        print(len(post_cos_sim_list))
         images = images.cuda()
         labels = labels.cuda()
         unit_error = torch.zeros_like(images)
