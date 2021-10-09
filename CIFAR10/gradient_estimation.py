@@ -101,7 +101,7 @@ def main():
 
         # gradient gt post model
         all_gradient_list = []
-        for j in range(10):
+        for j in range(2):
             images.requires_grad = True
             output = post_model(images, post=True)
             loss = loss_func(output, labels)
@@ -116,7 +116,7 @@ def main():
 
         all_gradient_list = []
         # gradient gt normal model with noise in output
-        for j in range(10):
+        for j in range(2):
             images.requires_grad = True
             output = post_model(images, post=False)
             output_noise = torch.randn_like(output) * 0.03 + 1
