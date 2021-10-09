@@ -115,6 +115,8 @@ def main():
             # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
             # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
             # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
+            print(ref_output)
+            print(output)
             if ref_output == output:
                 print("model not modified in post train")
                 modified = False
