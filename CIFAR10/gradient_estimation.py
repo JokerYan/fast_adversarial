@@ -130,8 +130,9 @@ def main():
         for j in range(2):
             images.requires_grad = True
             output = post_model(images, post=False)
-            output_noise = torch.rand_like(output) * 0.4 - 0. + 1
-            # print(output_noise)
+            noise_ratio = 0.5
+            output_noise = torch.rand_like(output) * noise_ratio * 2 - noise_ratio + 1
+            print(output_noise)
             # print(torch.argmax(output))
             # print(torch.argmax(output * output_noise))
             loss = loss_func(output * output_noise, labels)
