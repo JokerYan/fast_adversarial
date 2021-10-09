@@ -171,8 +171,11 @@ def main():
         print()
         if len(post_cos_sim_list) >= 10:
             break
-    print("post avg:", torch.mean(torch.Tensor(post_cos_sim_list)))
-    print("noise avg:", torch.mean(torch.Tensor(noise_cos_sim_list)))
+    print("post cos sim avg:", torch.mean(torch.Tensor(post_cos_sim_list)))
+    print("noise cos sim avg:", torch.mean(torch.Tensor(noise_cos_sim_list)))
+    print("normal acc avg:", torch.mean(torch.Tensor(normal_acc_list)))
+    print("post acc avg:", torch.mean(torch.Tensor(post_acc_list)))
+    print("noise acc avg:", torch.mean(torch.Tensor(noise_acc_list)))
 
 
 
