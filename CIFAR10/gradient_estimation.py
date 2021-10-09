@@ -36,6 +36,9 @@ def main():
     post_model = PostModel(model=None, args=args)
     _, test_loader = get_loaders(args.data_dir, batch_size=1)
     loss_func = nn.CrossEntropyLoss()
+    cos_sim_func = nn.CosineSimilarity(dim=0)
+    post_cos_sim_list = []
+    noise_cos_sim_list = []
     for i, (images, labels) in enumerate(test_loader):
         images = images.cuda()
         labels = labels.cuda()
@@ -101,6 +104,8 @@ def main():
 
         # gradient gt post model
         all_gradient_list = []
+        ref_output = post_model(images, post=False)
+        modified = True
         for j in range(2):
             images.requires_grad = True
             output = post_model(images, post=True)
@@ -110,9 +115,16 @@ def main():
             # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
             # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
             # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
-        cos_sim = nn.CosineSimilarity(dim=0)
-        angle = cos_sim(all_gradient_list[0].view(-1), all_gradient_list[1].view(-1))
-        print("post cosine sim: ", angle)
+            if ref_output == output:
+                print("model not modified in post train")
+                modified = False
+                break
+        if not modified:
+            print()
+            continue
+        cos_sim = cos_sim_func(all_gradient_list[0].view(-1), all_gradient_list[1].view(-1))
+        post_cos_sim_list.append(cos_sim)
+        print("post cosine sim: ", cos_sim)
 
         all_gradient_list = []
         # gradient gt normal model with noise in output
@@ -126,9 +138,9 @@ def main():
             # print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
             # print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
             # print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
-        cos_sim = nn.CosineSimilarity(dim=0)
-        angle = cos_sim(all_gradient_list[0].view(-1), all_gradient_list[1].view(-1))
-        print("normal cosine sim: ", angle)
+        cos_sim = cos_sim_func(all_gradient_list[0].view(-1), all_gradient_list[1].view(-1))
+        noise_cos_sim_list.append(cos_sim)
+        print("noise cosine sim: ", cos_sim)
 
         # # boundary attack estimate
         # # theta = torch.rand_like(images)
@@ -147,6 +159,9 @@ def main():
         print()
         if i == 20:
             break
+    print("post avg:", torch.mean(torch.Tensor(post_cos_sim_list)))
+    print("noise avg:", torch.mean(torch.Tensor(noise_cos_sim_list)))
+
 
 
 if __name__ == '__main__':
