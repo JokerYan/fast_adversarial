@@ -197,7 +197,7 @@ def main():
         post_same_dir_estimate_ratio_list.append(gradient_same_dir_ratio)
         print("post gradient estimate same ratio:", gradient_same_dir_ratio)
 
-        if len(post_cos_sim_list) >= 10:
+        if len(post_cos_sim_list) >= 100:
             break
         print("post cos sim avg:", torch.mean(torch.Tensor(post_cos_sim_list)))
         print("noise cos sim avg:", torch.mean(torch.Tensor(noise_cos_sim_list)))
