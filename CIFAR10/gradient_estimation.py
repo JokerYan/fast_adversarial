@@ -162,8 +162,9 @@ def main():
         u = torch.randn_like(theta)
         all_gradient_list = []
         for j in range(2):
-            g0, _ = fine_grained_binary_search(post_model, images, labels, theta)
-            g1, _ = fine_grained_binary_search(post_model, images, labels, theta + beta * u)
+            post_model_fix = post_model.get_post_model(images)
+            g0, _ = fine_grained_binary_search(post_model_fix, images, labels, theta)
+            g1, _ = fine_grained_binary_search(post_model_fix, images, labels, theta + beta * u)
             all_gradient = (g1 - g0) / beta * u
             all_gradient_list.append(all_gradient)
             # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))

@@ -41,6 +41,11 @@ class PostModel(nn.Module):
         self.post = post
         self.model_modified = False  # whether the post train modified the model in the last reference
 
+    def get_post_model(self, images):
+        post_model, original_class, neighbour_class, loss_list, acc_list, neighbour_delta = \
+            post_train(self.model, images, self.train_loader, self.train_loaders_by_class, self.args)
+        return post_model
+
     def forward(self, images, post=True):
         if self.post and post:
             post_model, original_class, neighbour_class, loss_list, acc_list, neighbour_delta = \
