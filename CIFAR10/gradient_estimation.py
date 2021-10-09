@@ -45,6 +45,7 @@ def main():
     post_cos_sim_list = []
     noise_cos_sim_list = []
     post_same_dir_ratio_list = []
+    post_same_dir_boundary_ratio_list = []
     post_same_dir_estimate_ratio_list = []
     for i, (images, labels) in enumerate(test_loader):
         print(len(post_cos_sim_list))
@@ -152,19 +153,26 @@ def main():
         # noise_cos_sim_list.append(cos_sim)
         # print("noise cosine sim: ", cos_sim)
 
-        # # boundary attack estimate
-        # # theta = torch.rand_like(images)
+        # boundary attack estimate
+        theta = torch.rand_like(images)
         # theta = all_gradient.detach()
-        # theta = theta / torch.linalg.norm(theta, ord=2, dim=1)
-        # print(theta.shape)
-        # beta = 0.005
-        # u = torch.randn_like(theta)
-        # g0, _ = fine_grained_binary_search(post_model, images, labels, theta)
-        # g1, _ = fine_grained_binary_search(post_model, images, labels, theta + beta * u)
-        # all_gradient = (g1 - g0) / beta * u
-        # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
-        # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
-        # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
+        theta = theta / torch.linalg.norm(theta, ord=2, dim=1)
+        print(theta.shape)
+        beta = 0.005
+        u = torch.randn_like(theta)
+        all_gradient_list = []
+        for j in range(2):
+            g0, _ = fine_grained_binary_search(post_model, images, labels, theta)
+            g1, _ = fine_grained_binary_search(post_model, images, labels, theta + beta * u)
+            all_gradient = (g1 - g0) / beta * u
+            all_gradient_list.append(all_gradient)
+            # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
+            # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
+            # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
+        gradient_direction = all_gradient_list[0] * all_gradient_list[1]
+        gradient_same_dir_ratio = torch.mean(torch.where(gradient_direction > 0, torch.ones_like(gradient_direction), torch.zeros_like(gradient_direction)))
+        post_same_dir_boundary_ratio_list.append(gradient_same_dir_ratio)
+        print("post gradient boundary same ratio:", gradient_same_dir_ratio)
 
         # post model estimate
         unit_error = torch.zeros_like(images)
@@ -176,8 +184,8 @@ def main():
         for j in range(2):
             images_pos = copy.deepcopy(images).detach() + unit_error * step_size
             images_neg = copy.deepcopy(images).detach() - unit_error * step_size
-            output_pos = post_model(images_pos).detach()
-            output_neg = post_model(images_neg).detach()
+            output_pos = post_model(images_pos, post=True).detach()
+            output_neg = post_model(images_neg, post=True).detach()
             loss_pos = loss_func(output_pos, labels)
             loss_neg = loss_func(output_neg, labels)
             gradient = (loss_pos - loss_neg) / (2 * step_size)
@@ -188,7 +196,7 @@ def main():
         print("post gradient estimate same ratio:", gradient_same_dir_ratio)
 
         print()
-        if len(post_cos_sim_list) >= 20:
+        if len(post_cos_sim_list) >= 10:
             break
     print("post cos sim avg:", torch.mean(torch.Tensor(post_cos_sim_list)))
     print("noise cos sim avg:", torch.mean(torch.Tensor(noise_cos_sim_list)))
@@ -196,6 +204,7 @@ def main():
     # print("post acc avg:", torch.mean(torch.Tensor(post_acc_list)))
     # print("noise acc avg:", torch.mean(torch.Tensor(noise_acc_list)))
     print("post same dir ratio:", torch.mean(torch.Tensor(post_same_dir_ratio_list)))
+    print("post same dir boundary ratio:", torch.mean(torch.Tensor(post_same_dir_boundary_ratio_list)))
     print("post same dir estimate ratio:", torch.mean(torch.Tensor(post_same_dir_estimate_ratio_list)))
 
 
