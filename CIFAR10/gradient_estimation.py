@@ -131,6 +131,8 @@ def main():
             images.requires_grad = True
             output = post_model(images, post=False)
             output_noise = torch.randn_like(output) * 0.1 + 1
+            print(torch.argmax(output))
+            print(torch.argmax(output + output_noise))
             loss = loss_func(output * output_noise, labels)
             all_gradient = torch.autograd.grad(loss, images)[0]
             all_gradient_list.append(all_gradient)
