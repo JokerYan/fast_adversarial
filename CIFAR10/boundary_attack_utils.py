@@ -10,7 +10,6 @@ def fine_grained_binary_search(model, x0, y0, theta, initial_lbd = 1.0):
     while torch.argmax(model(x0 + lbd*theta)) == y0:
         lbd *= 2.0
         nquery += 1
-    print("~~~")
 
     num_intervals = 100
 
@@ -24,7 +23,6 @@ def fine_grained_binary_search(model, x0, y0, theta, initial_lbd = 1.0):
             lbd_hi = lbd
             lbd_hi_index = i
             break
-    print("!!!")
 
     lbd_lo = lambdas[lbd_hi_index - 1]
 

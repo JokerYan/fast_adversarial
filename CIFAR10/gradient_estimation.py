@@ -153,28 +153,28 @@ def main():
         # noise_cos_sim_list.append(cos_sim)
         # print("noise cosine sim: ", cos_sim)
 
-        # boundary attack estimate
-        theta = torch.rand_like(images)
-        # theta = all_gradient.detach()
-        theta = theta / torch.linalg.norm(theta, ord=2, dim=1)
-        print(theta.shape)
-        beta = 0.005
-        u = torch.randn_like(theta)
-        all_gradient_list = []
-        for j in range(2):
-            post_model_fix = post_model.get_post_model(images)
-            print("post model get for boundary estimation")
-            g0, _ = fine_grained_binary_search(post_model_fix, images, labels, theta)
-            g1, _ = fine_grained_binary_search(post_model_fix, images, labels, theta + beta * u)
-            all_gradient = (g1 - g0) / beta * u
-            all_gradient_list.append(all_gradient)
-            # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
-            # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
-            # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
-        gradient_direction = all_gradient_list[0] * all_gradient_list[1]
-        gradient_same_dir_ratio = torch.mean(torch.where(gradient_direction > 0, torch.ones_like(gradient_direction), torch.zeros_like(gradient_direction)))
-        post_same_dir_boundary_ratio_list.append(gradient_same_dir_ratio)
-        print("post gradient boundary same ratio:", gradient_same_dir_ratio)
+        # # boundary attack estimate
+        # theta = torch.rand_like(images)
+        # # theta = all_gradient.detach()
+        # theta = theta / torch.linalg.norm(theta, ord=2, dim=1)
+        # print(theta.shape)
+        # beta = 0.005
+        # u = torch.randn_like(theta)
+        # all_gradient_list = []
+        # for j in range(2):
+        #     post_model_fix = post_model.get_post_model(images)
+        #     print("post model get for boundary estimation")
+        #     g0, _ = fine_grained_binary_search(post_model_fix, images, labels, theta)
+        #     g1, _ = fine_grained_binary_search(post_model_fix, images, labels, theta + beta * u)
+        #     all_gradient = (g1 - g0) / beta * u
+        #     all_gradient_list.append(all_gradient)
+        #     # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
+        #     # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
+        #     # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
+        # gradient_direction = all_gradient_list[0] * all_gradient_list[1]
+        # gradient_same_dir_ratio = torch.mean(torch.where(gradient_direction > 0, torch.ones_like(gradient_direction), torch.zeros_like(gradient_direction)))
+        # post_same_dir_boundary_ratio_list.append(gradient_same_dir_ratio)
+        # print("post gradient boundary same ratio:", gradient_same_dir_ratio)
 
         # post model estimate
         unit_error = torch.zeros_like(images)
@@ -205,7 +205,7 @@ def main():
         # print("post acc avg:", torch.mean(torch.Tensor(post_acc_list)))
         # print("noise acc avg:", torch.mean(torch.Tensor(noise_acc_list)))
         print("post same dir ratio:", torch.mean(torch.Tensor(post_same_dir_ratio_list)))
-        print("post same dir boundary ratio:", torch.mean(torch.Tensor(post_same_dir_boundary_ratio_list)))
+        # print("post same dir boundary ratio:", torch.mean(torch.Tensor(post_same_dir_boundary_ratio_list)))
         print("post same dir estimate ratio:", torch.mean(torch.Tensor(post_same_dir_estimate_ratio_list)))
         print()
 
