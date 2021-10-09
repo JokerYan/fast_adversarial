@@ -132,9 +132,9 @@ def main():
             output = post_model(images, post=False)
             noise_ratio = 0.2
             output_noise = torch.rand_like(output) * noise_ratio - noise_ratio / 2 + 1
-            print(output_noise)
-            print(torch.argmax(output))
-            print(torch.argmax(output * output_noise))
+            # print(output_noise)
+            # print(torch.argmax(output))
+            # print(torch.argmax(output * output_noise))
             loss = loss_func(output * output_noise, labels)
             all_gradient = torch.autograd.grad(loss, images)[0]
             all_gradient_list.append(all_gradient)
@@ -160,7 +160,7 @@ def main():
         # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
 
         print()
-        if len(post_cos_sim_list) >= 20:
+        if len(post_cos_sim_list) >= 1000:
             break
     print("post avg:", torch.mean(torch.Tensor(post_cos_sim_list)))
     print("noise avg:", torch.mean(torch.Tensor(noise_cos_sim_list)))
