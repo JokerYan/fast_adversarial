@@ -131,7 +131,7 @@ def main():
             images.requires_grad = True
             output = post_model(images, post=False)
             noise_ratio = 0.2
-            output_noise = torch.rand_like(output) * noise_ratio * 2 - noise_ratio + 1
+            output_noise = torch.rand_like(output) * noise_ratio + 1
             print(output_noise)
             print(torch.argmax(output))
             print(torch.argmax(output * output_noise))
