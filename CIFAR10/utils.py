@@ -342,7 +342,8 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
             # adv_input = data + (torch.rand_like(data) - 0.5).to(device) * 2 * neighbour_delta
             # adv_input = data + -1 * torch.rand_like(data).to(device) * neighbour_delta
             # adv_input = data + (torch.randint(0, 2, size=()) - 0.5).to(device) * 2 * neighbour_delta
-            adv_input = data + -1 * neighbour_delta
+            # adv_input = data + -1 * neighbour_delta
+            adv_input = data + neighbour_delta
             # directed_delta = torch.vstack([torch.ones_like(original_data).to(device) * neighbour_delta,
             #                                 torch.ones_like(neighbour_data).to(device) * -1 * neighbour_delta])
             # adv_input = data + directed_delta
