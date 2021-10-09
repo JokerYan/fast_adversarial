@@ -15,6 +15,7 @@ step_size = 0.001
 pixel_x = 16
 pixel_y = 16
 pixel_c = 0
+noise_ratio = 0.2
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -37,6 +38,9 @@ def main():
     _, test_loader = get_loaders(args.data_dir, batch_size=1)
     loss_func = nn.CrossEntropyLoss()
     cos_sim_func = nn.CosineSimilarity(dim=0)
+    post_acc_list = []
+    noise_acc_list = []
+    normal_acc_list = []
     post_cos_sim_list = []
     noise_cos_sim_list = []
     for i, (images, labels) in enumerate(test_loader):
@@ -102,6 +106,11 @@ def main():
         #     print("normal gradient:", float(gradient))
         '''
 
+        # normal
+        output = post_model(images, post=False)
+        acc = 1 if torch.argmax(output) == labels else 0
+        normal_acc_list.append(acc)
+
         # gradient gt post model
         all_gradient_list = []
         modified = True
@@ -111,13 +120,12 @@ def main():
             loss = loss_func(output, labels)
             all_gradient = torch.autograd.grad(loss, images)[0]
             all_gradient_list.append(all_gradient)
-            # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
-            # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
-            # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
             if not post_model.model_modified:
                 print("model not modified in post train")
                 modified = False
                 break
+            acc = 1 if torch.argmax(output) == labels else 0
+            post_acc_list.append(acc)
         if not modified:
             print()
             continue
@@ -130,17 +138,18 @@ def main():
         for j in range(2):
             images.requires_grad = True
             output = post_model(images, post=False)
-            noise_ratio = 0.2
             output_noise = torch.rand_like(output) * noise_ratio - noise_ratio / 2 + 1
             # print(output_noise)
             # print(torch.argmax(output))
             # print(torch.argmax(output * output_noise))
-            loss = loss_func(output * output_noise, labels)
+            output = output * output_noise
+            loss = loss_func(output, labels)
             all_gradient = torch.autograd.grad(loss, images)[0]
             all_gradient_list.append(all_gradient)
-            # print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
-            # print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
-            # print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
+
+            acc = 1 if torch.argmax(output) == labels else 0
+            noise_acc_list.append(acc)
+
         cos_sim = cos_sim_func(all_gradient_list[0].view(-1), all_gradient_list[1].view(-1))
         noise_cos_sim_list.append(cos_sim)
         print("noise cosine sim: ", cos_sim)
@@ -160,7 +169,7 @@ def main():
         # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
 
         print()
-        if len(post_cos_sim_list) >= 1000:
+        if len(post_cos_sim_list) >= 10:
             break
     print("post avg:", torch.mean(torch.Tensor(post_cos_sim_list)))
     print("noise avg:", torch.mean(torch.Tensor(noise_cos_sim_list)))
