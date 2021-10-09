@@ -130,6 +130,8 @@ def main():
         if not modified:
             print()
             continue
+        print(all_gradient_list[0][0][0][0])
+        print(all_gradient_list[1][0][0][0])
         cos_sim = cos_sim_func(all_gradient_list[0].view(-1), all_gradient_list[1].view(-1))
         post_cos_sim_list.append(cos_sim)
         print("post cosine sim: ", cos_sim)
