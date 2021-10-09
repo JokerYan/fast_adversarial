@@ -107,12 +107,12 @@ def main():
             loss = loss_func(output, labels)
             all_gradient = torch.autograd.grad(loss, images)[0]
             all_gradient_list.append(all_gradient)
-            print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
+            # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
             # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
             # print("gt gradient post: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
         cos_sim = nn.CosineSimilarity(dim=0)
         angle = cos_sim(all_gradient_list[0].view(-1), all_gradient_list[1].view(-1))
-        print("cosine sim: ", angle)
+        print("post cosine sim: ", angle)
 
         all_gradient_list = []
         # gradient gt normal model with noise in output
@@ -123,12 +123,12 @@ def main():
             loss = loss_func(output * output_noise, labels)
             all_gradient = torch.autograd.grad(loss, images)[0]
             all_gradient_list.append(all_gradient)
-            print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
+            # print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
             # print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
             # print("gt gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
         cos_sim = nn.CosineSimilarity(dim=0)
         angle = cos_sim(all_gradient_list[0].view(-1), all_gradient_list[1].view(-1))
-        print("cosine sim: ", angle)
+        print("normal cosine sim: ", angle)
 
         # # boundary attack estimate
         # # theta = torch.rand_like(images)
@@ -145,7 +145,7 @@ def main():
         # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
 
         print()
-        if i == 3:
+        if i == 20:
             break
 
 
