@@ -18,6 +18,7 @@ def fine_grained_binary_search(model, x0, y0, theta, initial_lbd = 1.0):
     lbd_hi = lbd
     lbd_hi_index = 0
     for i, lbd in enumerate(lambdas):
+        print(nquery)
         nquery += 1
         if torch.argmax(model(x0 + lbd*theta)) != y0:
             lbd_hi = lbd
