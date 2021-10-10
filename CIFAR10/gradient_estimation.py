@@ -154,8 +154,13 @@ def main():
         # print("noise cosine sim: ", cos_sim)
 
         # boundary attack estimate
-        theta = torch.rand_like(images)
-        # theta = all_gradient.detach()
+        images.requires_grad = True
+        output = post_model(images, post=True)
+        loss = loss_func(output, labels)
+        all_gradient = torch.autograd.grad(loss, images)[0]
+
+        # theta = torch.rand_like(images)
+        theta = all_gradient.detach()
         theta = theta / torch.linalg.norm(theta, ord=2, dim=1)
         print(theta.shape)
         beta = 0.005
