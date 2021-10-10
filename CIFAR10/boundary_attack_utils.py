@@ -28,7 +28,7 @@ def fine_grained_binary_search(model, x0, y0, theta, initial_lbd = 1.0):
     lbd_lo = lambdas[lbd_hi_index - 1]
 
     while (lbd_hi - lbd_lo) > 1e-7:
-        print("binary", nquery)
+        print("binary", nquery, lbd_hi, lbd_lo)
         lbd_mid = (lbd_lo + lbd_hi)/2.0
         nquery += 1
         if torch.argmax(model(x0 + lbd_mid*theta)) != y0:
