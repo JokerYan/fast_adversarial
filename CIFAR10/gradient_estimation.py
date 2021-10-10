@@ -170,7 +170,7 @@ def main():
         beta = 0.005
         u = torch.randn_like(theta)
         all_gradient_list = []
-        boudary_found = True
+        boundary_found = True
         for j in range(2):
             post_model_fix = post_model.get_post_model(images)
             g0, _ = fine_grained_binary_search(post_model_fix, images, labels, theta)
@@ -186,7 +186,7 @@ def main():
             # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
             # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
             print(g1, g0)
-        if not boudary_found:
+        if not boundary_found:
             continue
         gradient_direction = all_gradient_list[0] * all_gradient_list[1]
         gradient_same_dir_ratio = torch.mean(torch.where(gradient_direction > 0, torch.ones_like(gradient_direction), torch.zeros_like(gradient_direction)))
