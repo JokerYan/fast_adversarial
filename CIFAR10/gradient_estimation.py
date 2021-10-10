@@ -156,6 +156,9 @@ def main():
         # boundary attack estimate
         images.requires_grad = True
         output = post_model(images, post=True)
+        if not post_model.model_modified:
+            print("model not modified in post train")
+            continue
         loss = loss_func(output, labels)
         all_gradient = torch.autograd.grad(loss, images)[0]
 
