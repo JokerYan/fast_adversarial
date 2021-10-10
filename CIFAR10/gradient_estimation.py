@@ -179,6 +179,7 @@ def main():
             # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c][pixel_x][pixel_y])))
             # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+1][pixel_x][pixel_y])))
             # print("boundary gradient: {:.8f}".format(float(all_gradient[0][pixel_c+2][pixel_x][pixel_y])))
+            print((g1 - g0) / beta)
         gradient_direction = all_gradient_list[0] * all_gradient_list[1]
         gradient_same_dir_ratio = torch.mean(torch.where(gradient_direction > 0, torch.ones_like(gradient_direction), torch.zeros_like(gradient_direction)))
         post_same_dir_boundary_ratio_list.append(gradient_same_dir_ratio)
