@@ -15,16 +15,24 @@ logger = logging.getLogger(__name__)
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-dir', default='../../cifar-data', type=str)
-    parser.set_defaults(mixup=True, type=bool)
-    parser.add_argument('--no-mixup', dest='mixup', action='store_false')
-    parser.add_argument('--pt-data', default='ori_neigh', choices=['ori_rand', 'ori_train', 'ori_neigh_train', 'ori_neigh', 'rand'], type=str)
-    parser.add_argument('--pt-method', default='adv', choices=['adv', 'normal'], type=str)
-    parser.add_argument('--pt-iter', default=5, type=int)
-    parser.set_defaults(rs_neigh=True, type=bool)
-    parser.add_argument('--no-rs-neigh', dest='rs_neigh', action='store_false')
+    parser.add_argument('--pt-data', default='ori_neigh', choices=['ori_rand', 'ori_neigh', 'train'], type=str)
+    parser.add_argument('--pt-method', default='adv', choices=['adv', 'dir_adv', 'normal'], type=str)
+    parser.add_argument('--neigh-method', default='untargeted', choices=['untargeted', 'targeted'], type=str)
+    parser.add_argument('--adv-dir', default='na', choices=['na', 'pos', 'neg', 'both'], type=str)
+    parser.add_argument('--pt-iter', default=50, type=int)
+    parser.add_argument('--pt-lr', default=0.001, type=float)
+    parser.add_argument('--att-iter', default=20, type=int)
+    parser.add_argument('--att-restart', default=1, type=int)
     parser.set_defaults(blackbox=False, type=bool)
     parser.add_argument('--blackbox', dest='blackbox', action='store_true')
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    # check args validity
+    if args.adv_dir != 'na':
+        assert args.pt_method == 'dir_adv'
+    if args.pt_method == 'dir_adv':
+        assert args.adv_dir != 'na'
+    return args
 
 
 def main():
@@ -45,7 +53,7 @@ def main():
 
     # pgd_loss, pgd_acc = evaluate_pgd(test_loader, model_test, 50, 10)
     pgd_loss, pgd_acc, pgd_loss_post, pgd_acc_post, normal_loss_post, normal_acc_post \
-        = evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model_test, 50, 10, args)
+        = evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model_test, args)
 
     logger.info('Normal Loss \t Normal Acc \t PGD Loss \t PGD Acc \t PGD Post Loss \t PGD Post Acc')
     logger.info('%.4f \t \t %.4f \t %.4f \t %.4f \t %.4f \t \t %.4f', normal_loss_post, normal_acc_post, pgd_loss, pgd_acc, pgd_loss_post, pgd_acc_post)

@@ -240,44 +240,38 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
     # model.train()
     fix_model = copy.deepcopy(model)
     # attack_model = torchattacks.PGD(model, eps=(8/255)/std, alpha=(2/255)/std, steps=20)
-    optimizer = torch.optim.SGD(lr=0.001,
+    optimizer = torch.optim.SGD(lr=args.pt_lr,
                                 params=model.parameters(),
                                 momentum=0.9,
                                 nesterov=True)
-    # target_bce_loss_func = TargetBCELoss()
-    # target_bl_loss_func = TargetBLLoss()
     images = images.detach()
     with torch.enable_grad():
         # find neighbour
         original_output = fix_model(images)
         original_class = torch.argmax(original_output).reshape(1)
 
-        # # targeted attack to find neighbour
-        # min_target_loss = float('inf')
-        # max_target_loss = float('-inf')
-        # neighbour_delta = None
-        # for target_idx in range(10):
-        #     if target_idx == original_class:
-        #         continue
-        #     target = torch.ones_like(original_class) * target_idx
-        #     neighbour_delta_targeted = attack_pgd_targeted(model, images, original_class, target, epsilon, alpha,
-        #                                                    attack_iters=20, restarts=1, random_start=args.rs_neigh).detach()
-        #     target_output = fix_model(images + neighbour_delta_targeted)
-        #     target_loss = loss_func(target_output, target)
-        #     if target_loss < min_target_loss:
-        #         min_target_loss = target_loss
-        #         neighbour_delta = neighbour_delta_targeted
-        #     # target_loss = loss_func(target_output, original_class)
-        #     # if target_loss > max_target_loss:
-        #     #     max_target_loss = max_target_loss
-        #     #     neighbour_delta = neighbour_delta_targeted
-        #     print(int(target), float(target_loss))
+        if args.neigh_method == 'targeted':
+            # targeted attack to find neighbour
+            min_target_loss = float('inf')
+            max_target_loss = float('-inf')
+            neighbour_delta = None
+            for target_idx in range(10):
+                if target_idx == original_class:
+                    continue
+                target = torch.ones_like(original_class) * target_idx
+                neighbour_delta_targeted = attack_pgd_targeted(model, images, original_class, target, epsilon, alpha,
+                                                               attack_iters=20, restarts=1, random_start=False).detach()
+                target_output = fix_model(images + neighbour_delta_targeted)
+                target_loss = loss_func(target_output, target)
+                if target_loss < min_target_loss:
+                    min_target_loss = target_loss
+                    neighbour_delta = neighbour_delta_targeted
+                # print(int(target), float(target_loss))
+        elif args.neigh_method == 'untargeted':
+            # neighbour_images = attack_model(images, original_class)
+            neighbour_delta = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1,
+                                         random_start=False).detach()
 
-        # neighbour_images = attack_model(images, original_class)
-        neighbour_delta = attack_pgd(model, images, original_class, epsilon, alpha, attack_iters=20, restarts=1,
-                                      random_start=args.rs_neigh).detach()
-        # noise = ((torch.rand_like(images.detach()) * 2 - 1) * epsilon).to(device)  # uniform rand from [-eps, eps]
-        # neighbour_delta += noise
         neighbour_images = neighbour_delta + images
         neighbour_output = fix_model(neighbour_images)
         neighbour_class = torch.argmax(neighbour_output).reshape(1)
@@ -289,80 +283,53 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
 
         loss_list = []
         acc_list = []
-        # original_class = (original_class + random.randint(0, 10)) % 10
         for _ in range(args.pt_iter):
-            # # randomize neighbour
-            # if args.pt_data == 'ori_rand':
-            #     neighbour_class = (original_class + random.randint(1, 10)) % 10
-            # elif args.pt_data == 'rand':
-            #     original_class = (original_class + random.randint(0, 10)) % 10
-            #     neighbour_class = (original_class + random.randint(0, 10)) % 10
-            # elif args.pt_data == 'ori_train':
-            #     pass
-            # else:
-            #     raise NotImplementedError
-
-            original_data, original_label = next(iter(train_loaders_by_class[original_class]))
-            train_data, train_label = next(iter(train_loader))
-            if args.pt_data == 'ori_train':
+            if args.pt_data == 'ori_neigh':
+                original_data, original_label = next(iter(train_loaders_by_class[original_class]))
+                neighbour_data, neighbour_label = next(iter(train_loaders_by_class[neighbour_class]))
+            elif args.pt_data == 'ori_rand':
+                original_data, original_label = next(iter(train_loaders_by_class[original_class]))
+                neighbour_class = (original_class + random.randint(1, 10)) % 10
+                neighbour_data, neighbour_label = next(iter(train_loaders_by_class[neighbour_class]))
+            elif args.pt_data == 'train':
+                original_data, original_label = next(iter(train_loader))
                 neighbour_data, neighbour_label = next(iter(train_loader))
             else:
-                neighbour_data, neighbour_label = next(iter(train_loaders_by_class[neighbour_class]))
+                raise NotImplementedError
 
-            # # ori neigh mixup
-            # original_data, neighbour_data, original_label_mixup, neighbour_label_mixup = \
-            #     merge_images_and_labels(original_data, neighbour_data, original_label, neighbour_label, 0.7, device)
-
-            if args.pt_data == 'ori_neigh_train':
-                data = torch.vstack([original_data, neighbour_data, train_data]).to(device)
-                label = torch.hstack([original_label, neighbour_label, train_label]).to(device)
-            else:
-                data = torch.vstack([original_data, neighbour_data]).to(device)
-                label = torch.hstack([original_label, neighbour_label]).to(device)
-                # label_mixup = torch.hstack([original_label_mixup, neighbour_label_mixup]).to(device)
-
-            if args.mixup:
-                data = merge_images(data, images, 0.7, device)
-
-            # # generate fgsm adv examplesp
-            # delta = (torch.rand_like(data) * 2 - 1) * epsilon  # uniform rand from [-eps, eps]
-            # noise_input = data + delta
-            # noise_input.requires_grad = True
-            # noise_output = model(noise_input)
-            # loss = loss_func(noise_output, label)  # loss to be maximized
-            # # loss = target_bce_loss_func(noise_output, label, original_class, neighbour_class)  # bce loss to be maximized
-            # input_grad = torch.autograd.grad(loss, noise_input)[0]
-            # delta = delta + alpha * torch.sign(input_grad)
-            # delta.clamp_(-epsilon, epsilon)
-            # adv_input = data + delta
-
-            # use fixed direction attack
-            # print((torch.randint(0, 2, size=(len(data),)) - 0.5))
-            # adv_input = data + (torch.randint(0, 2, size=(len(data),)) - 0.5).to(device) * 2 * neighbour_delta
-            # adv_input = data + (torch.rand_like(data) - 0.5).to(device) * 2 * neighbour_delta
-            # adv_input = data + -1 * torch.rand_like(data).to(device) * neighbour_delta
-            # adv_input = data + (torch.randint(0, 2, size=()) - 0.5).to(device) * 2 * neighbour_delta
-            # adv_input = data + -1 * neighbour_delta
-            adv_input = data + neighbour_delta
-            # directed_delta = torch.vstack([torch.ones_like(original_data).to(device) * neighbour_delta,
-            #                                 torch.ones_like(neighbour_data).to(device) * -1 * neighbour_delta])
-            # adv_input = data + directed_delta
+            data = torch.vstack([original_data, neighbour_data]).to(device)
+            label = torch.hstack([original_label, neighbour_label]).to(device)
+            # label_mixup = torch.hstack([original_label_mixup, neighbour_label_mixup]).to(device)
 
             if args.pt_method == 'adv':
-                adv_output = model(adv_input.detach())
+                # generate fgsm adv examples
+                delta = (torch.rand_like(data) * 2 - 1) * epsilon  # uniform rand from [-eps, eps]
+                noise_input = data + delta
+                noise_input.requires_grad = True
+                noise_output = model(noise_input)
+                loss = loss_func(noise_output, label)  # loss to be maximized
+                input_grad = torch.autograd.grad(loss, noise_input)[0]
+                delta = delta + alpha * torch.sign(input_grad)
+                delta.clamp_(-epsilon, epsilon)
+                adv_input = data + delta
+            elif args.pt_method == 'dir_adv':
+                # use fixed direction attack
+                if args.adv_dir == 'pos':
+                    adv_input = data + 1 * neighbour_delta
+                elif args.adv_dir == 'neg':
+                    adv_input = data + -1 * neighbour_delta
+                elif args.adv_dir == 'both':
+                    directed_delta = torch.vstack([torch.ones_like(original_data).to(device) * neighbour_delta,
+                                                    torch.ones_like(neighbour_data).to(device) * -1 * neighbour_delta])
+                    adv_input = data + directed_delta
             elif args.pt_method == 'normal':
-                adv_output = model(data.detach())  # non adv training
+                adv_input = data
             else:
                 raise NotImplementedError
-            # adv_class = torch.argmax(adv_output)
-            loss_pos = loss_func(adv_output, label)
-            # loss_pos = mixup_loss(loss_func, adv_output, label_mixup, 0.7)
-            # loss_neg = loss_func(adv_output, target)
-            # bce_loss = target_bce_loss_func(adv_output, label, original_class, neighbour_class)
-            # bl_loss = target_bl_loss_func(adv_output, label, original_class, neighbour_class)
 
-            # loss = torch.mean(loss_list)
-            loss = loss_pos
+            adv_output = model(adv_input.detach())
+
+            loss = loss_func(adv_output, label)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -373,7 +340,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
     return model, original_class, neighbour_class, loss_list, acc_list, neighbour_delta
 
 
-def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, attack_iters, restarts, args):
+def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, args):
     epsilon = (8 / 255.) / std
     alpha = (2 / 255.) / std
     pgd_loss = 0
@@ -393,7 +360,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         n += y.size(0)
         X, y = X.cuda(), y.cuda()
         if not args.blackbox:
-            pgd_delta = attack_pgd(model, X, y, epsilon, alpha, attack_iters, restarts).detach()
+            pgd_delta = attack_pgd(model, X, y, epsilon, alpha, args.att_iter, args.att_restart).detach()
         else:
             pgd_delta = torch.zeros_like(X)
         with torch.no_grad():
