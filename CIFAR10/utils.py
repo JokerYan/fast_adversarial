@@ -371,14 +371,15 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             pgd_acc += (output.max(1)[1] == y).sum().item()
             print('Batch {}\tbase acc: {:.4f}'.format(i+1, pgd_acc / n))
 
-        post_model, original_class, neighbour_class, _, _, _ = post_train(model, X + pgd_delta, train_loader, train_loaders_by_class, args)
-
-        # evaluate neighbour found
-        neighbour_acc += 1 if int(y) == int(original_class) or int(y) == int(neighbour_class) else 0
-        print('Batch {}\tneigh acc: {:.4f}'.format(i+1, neighbour_acc / n))
-
         # evaluate post model against adv
         with torch.no_grad():
+            post_model, original_class, neighbour_class, _, _, _ = post_train(model, X + pgd_delta, train_loader,
+                                                                              train_loaders_by_class, args)
+            # evaluate neighbour acc
+            neighbour_acc += 1 if int(y) == int(original_class) or int(y) == int(neighbour_class) else 0
+            print('Batch {}\tneigh acc: {:.4f}'.format(i + 1, neighbour_acc / n))
+
+            # evaluate prediction acc
             output = post_model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
             pgd_loss_post += loss.item() * y.size(0)
