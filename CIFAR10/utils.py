@@ -347,6 +347,8 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
     pgd_acc = 0
     pgd_loss_post = 0
     pgd_acc_post = 0
+    normal_loss = 0
+    normal_acc = 0
     normal_loss_post = 0
     normal_acc_post = 0
     neighbour_acc = 0
@@ -360,6 +362,8 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             pgd_delta = attack_pgd(model, X, y, epsilon, alpha, args.att_iter, args.att_restart).detach()
         else:
             pgd_delta = torch.zeros_like(X)
+
+        # evaluate base model
         with torch.no_grad():
             output = model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
@@ -372,18 +376,32 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         # evaluate neighbour found
         neighbour_acc += 1 if int(y) == int(original_class) or int(y) == int(neighbour_class) else 0
         print('Batch {}\tneigh acc: {:.4f}'.format(i+1, neighbour_acc / n))
+
+        # evaluate post model against adv
         with torch.no_grad():
             output = post_model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
             pgd_loss_post += loss.item() * y.size(0)
             pgd_acc_post += (output.max(1)[1] == y).sum().item()
-            print('Batch {}\tavg post acc: {:.4f}'.format(i+1, pgd_acc_post / n))
+            print('Batch {}\tadv acc (post): {:.4f}'.format(i+1, pgd_acc_post / n))
+
+        # evaluate base model against normal
         with torch.no_grad():
+            output = model(X)
+            loss = F.cross_entropy(output, y)
+            normal_loss += loss.item() * y.size(0)
+            normal_acc += (output.max(1)[1] == y).sum().item()
+            print('Batch {}\tnormal acc: {:.4f}'.format(i+1, normal_acc / n))
+
+        # evaluate post model against normal
+        with torch.no_grad():
+            post_model, original_class, neighbour_class, _, _, _ = post_train(model, X, train_loader,
+                                                                              train_loaders_by_class, args)
             output = post_model(X)
             loss = F.cross_entropy(output, y)
             normal_loss_post += loss.item() * y.size(0)
             normal_acc_post += (output.max(1)[1] == y).sum().item()
-            print('Batch {}\tnormal post acc: {:.4f}'.format(i+1, normal_acc_post / n))
+            print('Batch {}\tnormal acc (post): {:.4f}'.format(i+1, normal_acc_post / n))
 
     return pgd_loss/n, pgd_acc/n, pgd_loss_post/n, pgd_acc_post/n, normal_loss_post/n, normal_acc_post/n
 
