@@ -349,10 +349,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
     pgd_acc_post = 0
     normal_loss_post = 0
     normal_acc_post = 0
-    double_attack_loss = 0
-    double_attack_acc = 0
     neighbour_acc = 0
-    borrowed_attack_acc = 0
     n = 0
     model.eval()
     cos_sim = nn.CosineSimilarity(dim=0)
@@ -368,49 +365,25 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             loss = F.cross_entropy(output, y)
             pgd_loss += loss.item() * y.size(0)
             pgd_acc += (output.max(1)[1] == y).sum().item()
-            pgd_output_class = torch.argmax(output)
-            # print("adv class: {} adv output: {}".format(pgd_output_class, output))
-            print('Batch {}  avg acc: {}'.format(i, pgd_acc / n))
+            print('Batch {}\tbase acc: {:.4f}'.format(i+1, pgd_acc / n))
 
-        post_model, original_class, neighbour_class, _, _, neighbour_delta = post_train(model, X + pgd_delta, train_loader, train_loaders_by_class, args)
-        # print("ref sim: {}".format(cos_sim(torch.rand_like((pgd_delta.view(-1))), torch.rand_like((neighbour_delta.view(-1))))))
-        # print("cos sim: {}".format(cos_sim(pgd_delta.view(-1), neighbour_delta.view(-1))))
-
-        # borrowed_attack_output = model(X - neighbour_delta)
-        # borrowed_attack_acc += 1 if torch.argmax(borrowed_attack_output) == pgd_output_class else 0
-        # print("borrowed attack acc: {:.4f}".format(borrowed_attack_acc / n))
-        # print("label: {} adv: {} borrowed attack: {}".format(int(y), int(pgd_output_class), int(torch.argmax(borrowed_attack_output))))
+        post_model, original_class, neighbour_class, _, _, _ = post_train(model, X + pgd_delta, train_loader, train_loaders_by_class, args)
 
         # evaluate neighbour found
-        normal_output_class = int(torch.argmax(model(X)))
         neighbour_acc += 1 if int(y) == int(original_class) or int(y) == int(neighbour_class) else 0
-        print('neighbour acc: {:.4f}'.format(neighbour_acc / n))
-        print('label: {} normal: {} original: {} neighbour: {}'.format(int(y), int(normal_output_class), int(original_class), int(neighbour_class)))
+        print('Batch {}\tneigh acc: {:.4f}'.format(i+1, neighbour_acc / n))
         with torch.no_grad():
             output = post_model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
             pgd_loss_post += loss.item() * y.size(0)
             pgd_acc_post += (output.max(1)[1] == y).sum().item()
-            pgd_output_class_post = torch.argmax(output)
-            # print("post class: {} post output: {}".format(pgd_output_class_post, output))
-            print('Batch {}  avg post acc: {}'.format(i, pgd_acc_post / n))
+            print('Batch {}\tavg post acc: {:.4f}'.format(i+1, pgd_acc_post / n))
         with torch.no_grad():
             output = post_model(X)
             loss = F.cross_entropy(output, y)
             normal_loss_post += loss.item() * y.size(0)
             normal_acc_post += (output.max(1)[1] == y).sum().item()
-            normal_output_class_post = torch.argmax(output)
-            print('Batch {}  normal post acc: {}'.format(i, normal_acc_post / n))
-        pgd_delta = attack_pgd(post_model, X, y, epsilon, alpha, attack_iters, restarts).detach()
-        with torch.no_grad():
-            output = post_model(X + pgd_delta)
-            loss = F.cross_entropy(output, y)
-            double_attack_loss += loss.item() * y.size(0)
-            double_attack_acc += (output.max(1)[1] == y).sum().item()
-            print('Batch {}  avg double attack acc: {}'.format(i, double_attack_acc / n))
-        # calculate_loss_surface(model, [model, post_model], ['model', 'post_model'], X, y, attack_func=attack_pgd)
-        # print('label: {}  pgd: {}  pgd_post: {}  normal_post: {}'.format(int(y), int(pgd_output_class), int(pgd_output_class_post), int(normal_output_class_post)))
-        print()
+            print('Batch {}\tnormal post acc: {:.4f}'.format(i+1, normal_acc_post / n))
 
     return pgd_loss/n, pgd_acc/n, pgd_loss_post/n, pgd_acc_post/n, normal_loss_post/n, normal_acc_post/n
 
