@@ -1,2 +1,4 @@
 *.pyc
 *.tar
+
+CIFAR10/logs/*
