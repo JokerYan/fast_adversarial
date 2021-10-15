@@ -340,7 +340,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
     return model, original_class, neighbour_class, loss_list, acc_list, neighbour_delta
 
 
-def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, args):
+def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, args, logger):
     epsilon = (8 / 255.) / std
     alpha = (2 / 255.) / std
     pgd_loss = 0
@@ -363,14 +363,14 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         else:
             pgd_delta = torch.zeros_like(X)
 
-        print()
+        logger.info()
         # evaluate base model
         with torch.no_grad():
             output = model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
             pgd_loss += loss.item() * y.size(0)
             pgd_acc += (output.max(1)[1] == y).sum().item()
-            print('Batch {}\tbase acc: {:.4f}'.format(i+1, pgd_acc / n))
+            logger.info('Batch {}\tbase acc: {:.4f}'.format(i+1, pgd_acc / n))
 
         # evaluate post model against adv
         with torch.no_grad():
@@ -378,14 +378,14 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
                                                                               train_loaders_by_class, args)
             # evaluate neighbour acc
             neighbour_acc += 1 if int(y) == int(original_class) or int(y) == int(neighbour_class) else 0
-            print('Batch {}\tneigh acc: {:.4f}'.format(i + 1, neighbour_acc / n))
+            logger.info('Batch {}\tneigh acc: {:.4f}'.format(i + 1, neighbour_acc / n))
 
             # evaluate prediction acc
             output = post_model(X + pgd_delta)
             loss = F.cross_entropy(output, y)
             pgd_loss_post += loss.item() * y.size(0)
             pgd_acc_post += (output.max(1)[1] == y).sum().item()
-            print('Batch {}\tadv acc (post): {:.4f}'.format(i+1, pgd_acc_post / n))
+            logger.info('Batch {}\tadv acc (post): {:.4f}'.format(i+1, pgd_acc_post / n))
 
         # evaluate base model against normal
         with torch.no_grad():
@@ -393,7 +393,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             loss = F.cross_entropy(output, y)
             normal_loss += loss.item() * y.size(0)
             normal_acc += (output.max(1)[1] == y).sum().item()
-            print('Batch {}\tnormal acc: {:.4f}'.format(i+1, normal_acc / n))
+            logger.info('Batch {}\tnormal acc: {:.4f}'.format(i+1, normal_acc / n))
 
         # evaluate post model against normal
         with torch.no_grad():
@@ -403,7 +403,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             loss = F.cross_entropy(output, y)
             normal_loss_post += loss.item() * y.size(0)
             normal_acc_post += (output.max(1)[1] == y).sum().item()
-            print('Batch {}\tnormal acc (post): {:.4f}'.format(i+1, normal_acc_post / n))
+            logger.info('Batch {}\tnormal acc (post): {:.4f}'.format(i+1, normal_acc_post / n))
 
     return pgd_loss/n, pgd_acc/n, pgd_loss_post/n, pgd_acc_post/n, normal_loss_post/n, normal_acc_post/n
 

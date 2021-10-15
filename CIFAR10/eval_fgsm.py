@@ -55,7 +55,7 @@ def main():
 
     # pgd_loss, pgd_acc = evaluate_pgd(test_loader, model_test, 50, 10)
     pgd_loss, pgd_acc, pgd_loss_post, pgd_acc_post, normal_loss_post, normal_acc_post \
-        = evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model_test, args)
+        = evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model_test, args, logger)
 
     logger.info('Normal Loss \t Normal Acc \t PGD Loss \t PGD Acc \t PGD Post Loss \t PGD Post Acc')
     logger.info('%.4f \t \t %.4f \t %.4f \t %.4f \t %.4f \t \t %.4f', normal_loss_post, normal_acc_post, pgd_loss, pgd_acc, pgd_loss_post, pgd_acc_post)
