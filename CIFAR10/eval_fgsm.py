@@ -11,7 +11,6 @@ from utils import evaluate_pgd, evaluate_standard, get_loaders, get_train_loader
 pretrained_model_path = os.path.join('.', 'pretrained_models', 'cifar_model_weights_30_epochs.pth')
 logger = logging.getLogger(__name__)
 
-
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-dir', default='../../cifar-data', type=str)
@@ -25,6 +24,7 @@ def get_args():
     parser.add_argument('--att-restart', default=1, type=int)
     parser.set_defaults(blackbox=False, type=bool)
     parser.add_argument('--blackbox', dest='blackbox', action='store_true')
+    parser.add_argument('--log-file', default='logs/default.log', type=str)
     args = parser.parse_args()
 
     # check args validity
@@ -37,8 +37,9 @@ def get_args():
 
 def main():
     args = get_args()
-    print(args)
-    state_dict = torch.load(pretrained_model_path)
+    # set logger file
+    logging.basicConfig(filename=args.log_file, level=logging.DEBUG)
+    logger.info(args)
 
     if not args.blackbox:
         _, test_loader = get_loaders(args.data_dir, batch_size=1)
@@ -47,6 +48,7 @@ def main():
     train_loader, _ = get_loaders(args.data_dir, batch_size=128)
     train_loaders_by_class = get_train_loaders_by_class(args.data_dir, batch_size=128)
     model_test = PreActResNet18().cuda()
+    state_dict = torch.load(pretrained_model_path)
     model_test.load_state_dict(state_dict)
     model_test.float()
     model_test.eval()
