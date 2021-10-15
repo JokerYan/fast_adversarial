@@ -1,5 +1,5 @@
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
-CUDA_VISIBLE_DEVICES=1 python eval_fgsm.py \
+CUDA_VISIBLE_DEVICES=3 python eval_fgsm.py \
   --pt-data ori_neigh \
   --pt-method dir_adv \
   --adv-dir neg \
