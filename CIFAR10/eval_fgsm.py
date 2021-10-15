@@ -36,6 +36,7 @@ def get_args():
 
 
 def main():
+    print("program start")
     args = get_args()
     print(args)
     state_dict = torch.load(pretrained_model_path)
