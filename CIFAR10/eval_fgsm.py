@@ -9,7 +9,6 @@ from utils import evaluate_pgd, evaluate_standard, get_loaders, get_train_loader
     get_blackbox_loader
 
 pretrained_model_path = os.path.join('.', 'pretrained_models', 'cifar_model_weights_30_epochs.pth')
-logger = logging.getLogger(__name__)
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -39,6 +38,7 @@ def main():
     args = get_args()
     # set logger file
     logging.basicConfig(filename=args.log_file, level=logging.DEBUG)
+    logger = logging.getLogger("eval")
     logger.info(args)
 
     if not args.blackbox:
@@ -55,7 +55,7 @@ def main():
 
     # pgd_loss, pgd_acc = evaluate_pgd(test_loader, model_test, 50, 10)
     pgd_loss, pgd_acc, pgd_loss_post, pgd_acc_post, normal_loss_post, normal_acc_post \
-        = evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model_test, args, logger)
+        = evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model_test, args)
 
     logger.info('Normal Loss \t Normal Acc \t PGD Loss \t PGD Acc \t PGD Post Loss \t PGD Post Acc')
     logger.info('%.4f \t \t %.4f \t %.4f \t %.4f \t %.4f \t \t %.4f', normal_loss_post, normal_acc_post, pgd_loss, pgd_acc, pgd_loss_post, pgd_acc_post)

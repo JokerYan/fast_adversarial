@@ -1,4 +1,5 @@
 import copy
+import logging
 import random
 
 import apex.amp as amp
@@ -232,6 +233,8 @@ def mixup_loss(loss_func, output, stack_labels, ratio):
 
 
 def post_train(model, images, train_loader, train_loaders_by_class, args):
+    logger = logging.getLogger("eval")
+
     alpha = (10 / 255) / std
     epsilon = (8 / 255) / std
     loss_func = nn.CrossEntropyLoss()
@@ -277,7 +280,7 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
         neighbour_class = torch.argmax(neighbour_output).reshape(1)
 
         if original_class == neighbour_class:
-            print('original class == neighbour class')
+            logger.info('original class == neighbour class')
             if args.pt_data == 'ori_neigh':
                 return model, original_class, neighbour_class, None, None, neighbour_delta
 
@@ -340,7 +343,9 @@ def post_train(model, images, train_loader, train_loaders_by_class, args):
     return model, original_class, neighbour_class, loss_list, acc_list, neighbour_delta
 
 
-def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, args, logger):
+def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, args):
+    logger = logging.getLogger("eval")
+
     epsilon = (8 / 255.) / std
     alpha = (2 / 255.) / std
     pgd_loss = 0
@@ -363,7 +368,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         else:
             pgd_delta = torch.zeros_like(X)
 
-        logger.info()
+        logger.info("\n")
         # evaluate base model
         with torch.no_grad():
             output = model(X + pgd_delta)
