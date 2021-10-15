@@ -363,6 +363,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         else:
             pgd_delta = torch.zeros_like(X)
 
+        print()
         # evaluate base model
         with torch.no_grad():
             output = model(X + pgd_delta)
