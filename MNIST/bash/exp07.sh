@@ -1,5 +1,5 @@
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
-CUDA_VISIBLE_DEVICES=2 python evaluate_mnist_post.py \
+CUDA_VISIBLE_DEVICES=6 python evaluate_mnist_post.py \
   --pt-data train \
   --pt-method adv \
   --adv-dir na \
