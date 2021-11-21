@@ -307,8 +307,8 @@ def main():
     model.load_state_dict(checkpoint)
     model.eval()
 
-    epsilon = (8 / 255.)
-    alpha = (2 / 255.)
+    epsilon = 0.3
+    alpha = 1e-2
     pgd_loss = 0
     pgd_acc = 0
     pgd_loss_post = 0
