@@ -271,7 +271,7 @@ def get_args():
     parser.add_argument('--neigh-method', default='untargeted', choices=['untargeted', 'targeted'], type=str)
     parser.add_argument('--pt-iter', default=50, type=int)
     parser.add_argument('--pt-lr', default=0.001, type=float)
-    parser.add_argument('--att-iter', default=20, type=int)
+    parser.add_argument('--att-iter', default=40, type=int)
     parser.add_argument('--att-restart', default=1, type=int)
     parser.set_defaults(blackbox=False, type=bool)
     parser.add_argument('--blackbox', dest='blackbox', action='store_true')
