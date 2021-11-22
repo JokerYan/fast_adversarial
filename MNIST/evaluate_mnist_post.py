@@ -125,11 +125,9 @@ def attack_pgd_targeted(model, X, y, target, epsilon, alpha, attack_iters, resta
             loss = F.cross_entropy(output, target)
             loss.backward()
             grad = delta.grad.detach()
-            d = delta[index[0], :, :, :]
-            g = -1 * grad[index[0], :, :, :]
-            d = clamp(d + alpha * torch.sign(g), -epsilon, epsilon)
             d = torch.clamp(delta + alpha * torch.sign(grad), -epsilon, epsilon)
-            delta.data[index[0], :, :, :] = d
+            d = clamp(d, 0-X, 1-X)
+            delta.data[index] = d[index]
             delta.grad.zero_()
         all_loss = F.cross_entropy(model(X+delta), target, reduction='none').detach()
         max_delta[all_loss >= max_loss] = delta.detach()[all_loss >= max_loss]
