@@ -6,6 +6,6 @@ CUDA_VISIBLE_DEVICES=5 python evaluate_mnist_post.py \
   --neigh-method untargeted \
   --pt-iter 50 \
   --pt-lr 0.1 \
-  --att-iter 20 \
+  --att-iter 40 \
   --att-restart 1 \
   --log-file logs/log_exp15_${TIMESTAMP}.txt
