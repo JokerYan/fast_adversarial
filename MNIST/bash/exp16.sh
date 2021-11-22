@@ -1,5 +1,5 @@
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
-CUDA_VISIBLE_DEVICES=6 python evaluate_mnist_post.py \
+CUDA_VISIBLE_DEVICES=0 python evaluate_mnist_post.py \
   --pt-data ori_neigh \
   --pt-method dir_adv \
   --adv-dir both \
