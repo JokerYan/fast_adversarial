@@ -111,10 +111,10 @@ def attack_pgd_targeted(model, X, y, target, epsilon, alpha, attack_iters, resta
     max_loss = torch.zeros(y.shape[0]).cuda()
     max_delta = torch.zeros_like(X).cuda()
     for zz in range(restarts):
-        delta = torch.zeros_like(X).cuda()
         if random_start:
-            for i in range(len(epsilon)):
-                delta[:, i, :, :].uniform_(-epsilon[i][0][0].item(), epsilon[i][0][0].item())
+            delta = torch.zeros_like(X).uniform_(-epsilon, epsilon).cuda()
+        else:
+            delta = torch.zeros_like(X).cuda()
         delta.data = clamp(delta, 0 - X, 1 - X)
         delta.requires_grad = True
         for _ in range(attack_iters):
