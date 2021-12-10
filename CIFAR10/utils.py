@@ -416,7 +416,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             logger.info('Batch {}\tnatural acc (post): {:.4f}'.format(i+1, natural_acc_post / n))
 
         # log timer results
-        logger.info('Batch {}\tbase time: {}s/img\tpost time: {}s/img'.format(i+1, timer.get_total_time('base_adv')/n,
+        logger.info('Batch {}\tbase time: {:.5f}s/img\tpost time: {:.5f}s/img'.format(i+1, timer.get_total_time('base_adv')/n,
                                                                               timer.get_total_time('pt_adv')/n))
 
     return pgd_loss/n, pgd_acc/n, pgd_loss_post/n, pgd_acc_post/n, natural_loss_post/n, natural_acc_post/n
