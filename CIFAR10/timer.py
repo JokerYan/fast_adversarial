@@ -13,6 +13,7 @@ class Timer:
     def end(self):
         assert self.last_start is not None
         elapsed = time.time() - self.last_start
+        self.last_start = None
         self.total_time += elapsed
 
 
