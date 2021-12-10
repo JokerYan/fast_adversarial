@@ -15,6 +15,7 @@ import torchattacks
 
 from blackbox_dataset import BlackboxDataset
 from loss_surface import calculate_loss_surface
+import timer
 
 cifar10_mean = (0.4914, 0.4822, 0.4465)
 cifar10_std = (0.2471, 0.2435, 0.2616)
@@ -352,10 +353,10 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
     pgd_acc = 0
     pgd_loss_post = 0
     pgd_acc_post = 0
-    normal_loss = 0
-    normal_acc = 0
-    normal_loss_post = 0
-    normal_acc_post = 0
+    natural_loss = 0
+    natural_acc = 0
+    natural_loss_post = 0
+    natural_acc_post = 0
     neighbour_acc = 0
     n = 0
     model.eval()
@@ -369,9 +370,11 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             pgd_delta = torch.zeros_like(X)
 
         logger.info("\n")
-        # evaluate base model
+        # evaluate base model against adv
         with torch.no_grad():
+            timer.start_timer('base_adv')
             output = model(X + pgd_delta)
+            timer.end_timer('base_adv')
             loss = F.cross_entropy(output, y)
             pgd_loss += loss.item() * y.size(0)
             pgd_acc += (output.max(1)[1] == y).sum().item()
@@ -379,6 +382,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
 
         # evaluate post model against adv
         with torch.no_grad():
+            timer.start_timer('pt_adv')
             post_model, original_class, neighbour_class, _, _, _ = post_train(model, X + pgd_delta, train_loader,
                                                                               train_loaders_by_class, args)
             # evaluate neighbour acc
@@ -387,30 +391,35 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
 
             # evaluate prediction acc
             output = post_model(X + pgd_delta)
+            timer.end_timer('pt_adv')
             loss = F.cross_entropy(output, y)
             pgd_loss_post += loss.item() * y.size(0)
             pgd_acc_post += (output.max(1)[1] == y).sum().item()
             logger.info('Batch {}\tadv acc (post): {:.4f}'.format(i+1, pgd_acc_post / n))
 
-        # evaluate base model against normal
+        # evaluate base model against natural
         with torch.no_grad():
             output = model(X)
             loss = F.cross_entropy(output, y)
-            normal_loss += loss.item() * y.size(0)
-            normal_acc += (output.max(1)[1] == y).sum().item()
-            logger.info('Batch {}\tnormal acc: {:.4f}'.format(i+1, normal_acc / n))
+            natural_loss += loss.item() * y.size(0)
+            natural_acc += (output.max(1)[1] == y).sum().item()
+            logger.info('Batch {}\tnatural acc: {:.4f}'.format(i+1, natural_acc / n))
 
-        # evaluate post model against normal
+        # evaluate post model against natural
         with torch.no_grad():
             post_model, original_class, neighbour_class, _, _, _ = post_train(model, X, train_loader,
                                                                               train_loaders_by_class, args)
             output = post_model(X)
             loss = F.cross_entropy(output, y)
-            normal_loss_post += loss.item() * y.size(0)
-            normal_acc_post += (output.max(1)[1] == y).sum().item()
-            logger.info('Batch {}\tnormal acc (post): {:.4f}'.format(i+1, normal_acc_post / n))
+            natural_loss_post += loss.item() * y.size(0)
+            natural_acc_post += (output.max(1)[1] == y).sum().item()
+            logger.info('Batch {}\tnatural acc (post): {:.4f}'.format(i+1, natural_acc_post / n))
 
-    return pgd_loss/n, pgd_acc/n, pgd_loss_post/n, pgd_acc_post/n, normal_loss_post/n, normal_acc_post/n
+        # log timer results
+        logger.info('Batch {}\tbase time: {}s/img\tpost time: {}s/img'.format(i+1, timer.get_total_time('base_adv')/n,
+                                                                              timer.get_total_time('pt_adv')/n))
+
+    return pgd_loss/n, pgd_acc/n, pgd_loss_post/n, pgd_acc_post/n, natural_loss_post/n, natural_acc_post/n
 
 
 def evaluate_standard(test_loader, model):
