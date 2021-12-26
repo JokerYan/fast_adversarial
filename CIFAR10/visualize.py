@@ -55,7 +55,7 @@ def visualize_loss_surface(base_model, loss_model_list, loss_model_name_list, im
         plt.close()
 
 
-def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input):
+def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input, index):
     resolution = 20
 
     natural_pos = [resolution / 4, resolution / 4]
@@ -83,7 +83,7 @@ def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input)
     plt.text(neighbour_pos[0], neighbour_pos[1], 'x\'\'', fontsize=12, horizontalalignment='center',
              verticalalignment='center', c='white')
 
-    plt.savefig('./decision_boundary.png')
+    plt.savefig('./debug/decision_boundary_{}.png'.format(index))
     print('decision boundary plot saved')
     plt.close()
 

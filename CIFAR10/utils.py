@@ -399,7 +399,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
 
         # visualize decision boundary
         if int(y) != int(original_class) and int(y) == int(neighbour_class):
-            visualize_decision_boundary(model, X, X + pgd_delta, X + pgd_delta + neighbour_delta)
+            visualize_decision_boundary(model, X, X + pgd_delta, X + pgd_delta + neighbour_delta, i)
 
         # evaluate base model against natural
         with torch.no_grad():
