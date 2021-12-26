@@ -58,6 +58,7 @@ def visualize_loss_surface(base_model, loss_model_list, loss_model_name_list, im
 def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input, index):
     resolution = 20
 
+    # coordinate: (row, column)
     natural_pos = [resolution / 4, resolution / 4]
     adv_pos = [resolution * 3 / 4, resolution / 4]
     neighbor_pos = [resolution / 4, resolution * 3 / 4]
@@ -66,9 +67,9 @@ def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input,
     delta2 = neighbor_input - natural_input / (neighbor_pos[1] - natural_pos[1])
     pred_matrix = np.zeros([resolution, resolution])
 
-    print(torch.argmax(model(natural_input)))
-    print(torch.argmax(model(adv_input)))
-    print(torch.argmax(model(neighbor_input)))
+    # print(torch.argmax(model(natural_input)))
+    # print(torch.argmax(model(adv_input)))
+    # print(torch.argmax(model(neighbor_input)))
 
     for i in range(resolution):
         for j in range(resolution):
@@ -81,12 +82,12 @@ def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input,
     fig, ax = plt.subplots()
     im = ax.imshow(pred_matrix)
 
-    # add text
-    plt.text(natural_pos[0], natural_pos[1], 'x', fontsize=12, horizontalalignment='center',
+    # add text, coordinate: (column, row)
+    plt.text(natural_pos[1], natural_pos[0], 'x', fontsize=12, horizontalalignment='center',
              verticalalignment='center', c='white')
-    plt.text(adv_pos[0], adv_pos[1], 'x\'', fontsize=12, horizontalalignment='center',
+    plt.text(adv_pos[1], adv_pos[0], 'x\'', fontsize=12, horizontalalignment='center',
              verticalalignment='center', c='white')
-    plt.text(neighbor_pos[0], neighbor_pos[1], 'x\'\'', fontsize=12, horizontalalignment='center',
+    plt.text(neighbor_pos[1], neighbor_pos[0], 'x\'\'', fontsize=12, horizontalalignment='center',
              verticalalignment='center', c='white')
 
     plt.savefig('./debug/decision_boundary_{}.png'.format(index))
