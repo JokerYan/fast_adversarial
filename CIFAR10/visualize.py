@@ -59,9 +59,11 @@ def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input)
     resolution = 20
     delta1 = (adv_input - natural_input) / (resolution / 4)
     delta2 = neighbor_input - natural_input / (resolution / 4)
+    pred_matrix = np.zeros(resolution, resolution)
     for i in range(resolution):
         for j in range(resolution):
             cur_input = natural_input + (i - resolution / 2) * delta1 + (j - resolution / 2) * delta2
             cur_output = model(cur_input)
-            print(torch.argmax(cur_output))
+            pred_matrix[i][j] = torch.argmax(cur_output)
+    print(pred_matrix)
 
