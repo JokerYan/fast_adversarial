@@ -398,7 +398,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             logger.info('Batch {}\tadv acc (post): {:.4f}'.format(i+1, pgd_acc_post / n))
 
         # visualize decision boundary
-        if int(y) == int(neighbour_class):
+        if int(y) != int(original_class) and int(y) == int(neighbour_class):
             visualize_decision_boundary(model, X, X + pgd_delta, X + pgd_delta + neighbour_delta)
 
         # evaluate base model against natural
