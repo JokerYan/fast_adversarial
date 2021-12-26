@@ -70,6 +70,8 @@ def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input,
         for j in range(resolution):
             cur_input = natural_input + (i - natural_pos[0]) * delta1 + (j - natural_pos[1]) * delta2
             cur_output = model(cur_input)
+            if i == neighbour_pos[0] and j == neighbour_pos[1]:
+                assert torch.argmax(cur_output) == torch.argmax(model(natural_input))
             pred_matrix[i][j] = torch.argmax(cur_output)
     print(pred_matrix)
     fig, ax = plt.subplots()
