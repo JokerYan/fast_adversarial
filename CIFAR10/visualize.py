@@ -70,9 +70,12 @@ def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input)
     im = ax.imshow(pred_matrix)
 
     # add text
-    plt.text(resolution / 2, resolution / 2, 'x', fontsize=12)
-    plt.text(resolution * 3 / 4, resolution / 2, 'x\'', fontsize=12)
-    plt.text(resolution / 2, resolution * 3 / 4, 'x\'\'', fontsize=12)
+    plt.text(resolution / 2, resolution / 2, 'x', fontsize=12, horizontalalignment='center',
+             verticalalignment='center', c='white')
+    plt.text(resolution * 3 / 4, resolution / 2, 'x\'', fontsize=12, horizontalalignment='center',
+             verticalalignment='center', c='white')
+    plt.text(resolution / 2, resolution * 3 / 4, 'x\'\'', fontsize=12, horizontalalignment='center',
+             verticalalignment='center', c='white')
 
     plt.savefig('./decision_boundary.png')
     print('decision boundary plot saved')
