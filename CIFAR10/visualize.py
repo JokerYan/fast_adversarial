@@ -57,12 +57,18 @@ def visualize_loss_surface(base_model, loss_model_list, loss_model_name_list, im
 
 def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input):
     resolution = 20
-    delta1 = (adv_input - natural_input) / (resolution / 4)
-    delta2 = neighbor_input - natural_input / (resolution / 4)
+
+    natural_pos = [resolution / 4, resolution / 4]
+    adv_pos = [resolution * 3 / 4, resolution / 4]
+    neighbour_pos = [resolution / 4, resolution * 3 / 4]
+
+    delta1 = (adv_input - natural_input) / (adv_pos[0] - natural_pos[0])
+    delta2 = neighbor_input - natural_input / (neighbour_pos[1] - natural_pos[1])
     pred_matrix = np.zeros([resolution, resolution])
+
     for i in range(resolution):
         for j in range(resolution):
-            cur_input = natural_input + (i - resolution / 2) * delta1 + (j - resolution / 2) * delta2
+            cur_input = natural_input + (i - natural_pos[0]) * delta1 + (j - natural_pos[1]) * delta2
             cur_output = model(cur_input)
             pred_matrix[i][j] = torch.argmax(cur_output)
     print(pred_matrix)
@@ -70,11 +76,11 @@ def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input)
     im = ax.imshow(pred_matrix)
 
     # add text
-    plt.text(resolution / 2, resolution / 2, 'x', fontsize=12, horizontalalignment='center',
+    plt.text(natural_pos[0], natural_pos[1], 'x', fontsize=12, horizontalalignment='center',
              verticalalignment='center', c='white')
-    plt.text(resolution * 3 / 4, resolution / 2, 'x\'', fontsize=12, horizontalalignment='center',
+    plt.text(adv_pos[0], adv_pos[1], 'x\'', fontsize=12, horizontalalignment='center',
              verticalalignment='center', c='white')
-    plt.text(resolution / 2, resolution * 3 / 4, 'x\'\'', fontsize=12, horizontalalignment='center',
+    plt.text(neighbour_pos[0], neighbour_pos[1], 'x\'\'', fontsize=12, horizontalalignment='center',
              verticalalignment='center', c='white')
 
     plt.savefig('./decision_boundary.png')
