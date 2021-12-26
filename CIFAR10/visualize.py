@@ -15,7 +15,7 @@ mu = torch.tensor(cifar10_mean).view(3,1,1).cuda()
 std = torch.tensor(cifar10_std).view(3,1,1).cuda()
 
 
-def calculate_loss_surface(base_model, loss_model_list, loss_model_name_list, image, label, attack_func):
+def visualize_loss_surface(base_model, loss_model_list, loss_model_name_list, image, label, attack_func):
     loss_func = torch.nn.CrossEntropyLoss()
     epsilon = (8 / 255.) / std
     alpha = (2 / 255.) / std
@@ -53,3 +53,15 @@ def calculate_loss_surface(base_model, loss_model_list, loss_model_name_list, im
         plt.savefig('./loss_surface.png')
         print('loss surface plot saved')
         plt.close()
+
+
+def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input):
+    resolution = 20
+    delta1 = (adv_input - natural_input) / (resolution / 4)
+    delta2 = neighbor_input - natural_input / (resolution / 4)
+    for i in range(resolution):
+        for j in range(resolution):
+            cur_input = natural_input + (i - resolution / 2) * delta1 + (j - resolution / 2) * delta2
+            cur_output = model(cur_input)
+            print(torch.argmax(cur_output))
+

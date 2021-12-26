@@ -13,8 +13,8 @@ import numpy as np
 from tqdm import tqdm
 import torchattacks
 
+from visualize import visualize_loss_surface, visualize_decision_boundary
 from blackbox_dataset import BlackboxDataset
-from loss_surface import calculate_loss_surface
 import timer
 
 cifar10_mean = (0.4914, 0.4822, 0.4465)
@@ -383,7 +383,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         # evaluate post model against adv
         with torch.no_grad():
             timer.start_timer('pt_adv')
-            post_model, original_class, neighbour_class, _, _, _ = post_train(model, X + pgd_delta, train_loader,
+            post_model, original_class, neighbour_class, _, _, neighbour_delta = post_train(model, X + pgd_delta, train_loader,
                                                                               train_loaders_by_class, args)
             # evaluate neighbour acc
             neighbour_acc += 1 if int(y) == int(original_class) or int(y) == int(neighbour_class) else 0
@@ -396,6 +396,9 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             pgd_loss_post += loss.item() * y.size(0)
             pgd_acc_post += (output.max(1)[1] == y).sum().item()
             logger.info('Batch {}\tadv acc (post): {:.4f}'.format(i+1, pgd_acc_post / n))
+
+        # visualize decision boundary
+        visualize_decision_boundary(model, X, X + pgd_delta, X + pgd_delta + neighbour_delta)
 
         # evaluate base model against natural
         with torch.no_grad():
