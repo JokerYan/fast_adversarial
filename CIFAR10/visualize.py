@@ -67,28 +67,30 @@ def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input,
     delta2 = (neighbor_input - natural_input) / (neighbor_pos[1] - natural_pos[1])
     pred_matrix = np.zeros([resolution, resolution])
 
-    # print(torch.argmax(model(natural_input)))
-    # print(torch.argmax(model(adv_input)))
-    # print(torch.argmax(model(neighbor_input)))
+    nat_pred = torch.argmax(model(natural_input))
+    adv_pred = torch.argmax(model(adv_input))
+    neigh_pred = torch.argmax(model(neighbor_input))
 
     for i in range(resolution):
         for j in range(resolution):
             cur_input = natural_input + (i - natural_pos[0]) * delta1 + (j - natural_pos[1]) * delta2
             cur_output = model(cur_input)
             if i == neighbor_pos[0] and j == neighbor_pos[1]:
-                assert torch.argmax(cur_output) == torch.argmax(model(natural_input))
+                assert torch.argmax(cur_output) == nat_pred
             pred_matrix[i][j] = torch.argmax(cur_output)
     print(pred_matrix)
     fig, ax = plt.subplots()
+    ax.get_yaxis().set_visible(False)
+    ax.get_xaxis().set_visible(False)
     im = ax.imshow(pred_matrix)
 
     # add text, coordinate: (column, row)
     plt.text(natural_pos[1], natural_pos[0], 'x', fontsize=12, horizontalalignment='center',
-             verticalalignment='center', c='white')
+             verticalalignment='center', c='white' if nat_pred < 5 else 'black')
     plt.text(adv_pos[1], adv_pos[0], 'x\'', fontsize=12, horizontalalignment='center',
-             verticalalignment='center', c='white')
+             verticalalignment='center', c='white' if adv_pred < 5 else 'black')
     plt.text(neighbor_pos[1], neighbor_pos[0], 'x\'\'', fontsize=12, horizontalalignment='center',
-             verticalalignment='center', c='white')
+             verticalalignment='center', c='white' if neigh_pred < 5 else 'black')
 
     plt.savefig('./debug/decision_boundary_{}.png'.format(index))
     print('decision boundary plot saved')
