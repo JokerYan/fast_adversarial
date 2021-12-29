@@ -105,9 +105,8 @@ def visualize_cam(x, cam, index):
     cifar10_std = np.expand_dims(cifar10_std, axis=(1, 2))
 
     x = np.squeeze(x.cpu().numpy())
-    x = cifar10_std * x + cifar10_mean
+    x = 255 * (cifar10_std * x + cifar10_mean)
     x = np.transpose(x, [1, 2, 0])
-    print(x.shape)
     cv2.imwrite('./debug/input_{}.jpg'.format(index), x)
     fig, ax = plt.subplots()
     cam = ax.imshow(cam)
