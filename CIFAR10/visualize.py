@@ -98,9 +98,9 @@ def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input,
     plt.close()
 
 
-def visualize_cam(x, cam):
-    cifar10_mean = np.array(0.4914, 0.4822, 0.4465)
-    cifar10_std = np.array(0.2471, 0.2435, 0.2616)
+def visualize_cam(x, cam, index):
+    cifar10_mean = np.array([0.4914, 0.4822, 0.4465])
+    cifar10_std = np.array([0.2471, 0.2435, 0.2616])
     cifar10_mean = np.expand_dims(cifar10_mean, axis=(1, 2))
     cifar10_std = np.expand_dims(cifar10_std, axis=(1, 2))
 
@@ -108,7 +108,7 @@ def visualize_cam(x, cam):
     x = cifar10_std * x + cifar10_mean
     x = np.transpose(x, [1, 2, 0])
     print(x.shape)
-    cv2.imwrite('./debug/input.jpg', x)
+    cv2.imwrite('./debug/input_{}.jpg'.format(index), x)
     fig, ax = plt.subplots()
     cam = ax.imshow(cam)
-    plt.savefig('./debug/cam.jpg'.format(cam))
+    plt.savefig('./debug/cam_{}.jpg'.format(index), cam)
