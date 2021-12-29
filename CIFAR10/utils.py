@@ -374,6 +374,9 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         with torch.no_grad():
             timer.start_timer('base_adv')
             output = model(X + pgd_delta)
+            # generate CAM
+            model.generateCAM(0)
+
             timer.end_timer('base_adv')
             loss = F.cross_entropy(output, y)
             pgd_loss += loss.item() * y.size(0)
