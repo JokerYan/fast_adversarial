@@ -111,3 +111,13 @@ def visualize_cam(x, cam, index):
     fig, ax = plt.subplots()
     cam = ax.imshow(cam)
     plt.savefig('./debug/cam_{}.jpg'.format(index))
+
+
+def visualize_grad(model, x, y):
+    loss_func = torch.nn.CrossEntropyLoss()
+    with torch.enable_grad():
+        x.requires_grad = True
+        output = model(x)
+        loss = loss_func(output, y)  # loss to be maximized
+        grad = torch.autograd.grad(loss, x)[0]
+        print(grad.shape)

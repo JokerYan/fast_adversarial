@@ -14,7 +14,7 @@ import numpy as np
 from tqdm import tqdm
 import torchattacks
 
-from visualize import visualize_loss_surface, visualize_decision_boundary, visualize_cam
+from visualize import visualize_loss_surface, visualize_decision_boundary, visualize_cam, visualize_grad
 from blackbox_dataset import BlackboxDataset
 import timer
 
@@ -375,10 +375,10 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         with torch.no_grad():
             timer.start_timer('base_adv')
             output = model(X + pgd_delta)
-            # visualize CAM
-            output_class = int(torch.argmax(output))
-            cam = model.generate_cam(int(y))
-            visualize_cam(X, cam, i)
+            # # visualize CAM
+            # output_class = int(torch.argmax(output))
+            # cam = model.generate_cam(int(y))
+            # visualize_cam(X, cam, i)
 
             timer.end_timer('base_adv')
             loss = F.cross_entropy(output, y)
@@ -408,9 +408,12 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         # if int(natural_class) != int(original_class) and int(natural_class) == int(neighbour_class):
         #     visualize_decision_boundary(model, X, X + pgd_delta, X + pgd_delta + neighbour_delta, i)
 
-        # visualize CAM
-        cam = post_model.generate_cam(int(y))
-        visualize_cam(X, cam, str(i) + "_post")
+        # # visualize CAM
+        # cam = post_model.generate_cam(int(y))
+        # visualize_cam(X, cam, str(i) + "_post")
+
+        # visualize grad
+        visualize_grad(model, X, y)
 
         # evaluate base model against natural
         with torch.no_grad():
