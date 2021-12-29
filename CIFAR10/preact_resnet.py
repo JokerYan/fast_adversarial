@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
+import cv2
 
 
 class PreActBlock(nn.Module):
@@ -77,19 +79,31 @@ class PreActResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        print("input", x.shape)
         out = self.conv1(x)
         out = self.layer1(out)
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.layer4(out)
         out = F.relu(self.bn(out))
-        print("before", out.shape)
+        self.feature_conv = out.detach().cpu().numpy()
         out = F.avg_pool2d(out, 4)
-        print("after", out.shape, "\n")
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         return out
+
+    def generateCAM(self, class_idx):
+        # generate the class activation maps upsample to 256x256
+        weight_softmax = list(self.parameters())[-2].data.numpy()
+        print(self.feature_conv.shape, weight_softmax.shape)
+        size_upsample = (32, 32)
+        bz, nc, h, w = self.feature_conv.shape
+        cam = weight_softmax[class_idx].dot(self.feature_conv.reshape((nc, h * w)))
+        cam = cam.reshape(h, w)
+        cam = cam - np.min(cam)
+        cam_img = cam / np.max(cam)
+        cam_img = np.uint8(255 * cam_img)
+        output_cam = cv2.resize(cam_img, size_upsample)
+        return output_cam
 
 
 def PreActResNet18():
