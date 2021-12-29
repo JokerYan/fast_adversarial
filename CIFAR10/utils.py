@@ -378,7 +378,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             # generate CAM
             output_class = int(torch.argmax(output))
             cam = model.generateCAM(output_class)
-            cv2.imwrite('./debug/input_{}.jpg'.format(i), X)
+            cv2.imwrite('./debug/input_{}.jpg'.format(i), X.cpu().numpy())
             cv2.imwrite('./debug/cam_{}.jpg'.format(i), cam)
 
             timer.end_timer('base_adv')
