@@ -1,3 +1,4 @@
+import cv2
 import torch
 import numpy as np
 import matplotlib
@@ -96,3 +97,12 @@ def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input,
     print('decision boundary plot saved')
     plt.close()
 
+
+def visualize_cam(x, cam):
+    x = x.cpu().numpy()
+    print(x.shape)
+    cv2.imwrite('./debug/input.jpg', x)
+    cv2.imwrite('./debug/cam.jpg', cam)
+    fig, ax = plt.subplots()
+    cam = ax.imshow(cam)
+    plt.savefig('./debug/cam.jpg'.format(cam))

@@ -91,7 +91,7 @@ class PreActResNet(nn.Module):
         out = self.linear(out)
         return out
 
-    def generateCAM(self, class_idx):
+    def generate_cam(self, class_idx):
         # generate the class activation maps upsample to 256x256
         weight_softmax = list(self.parameters())[-2].data.cpu().numpy()
         print(self.feature_conv.shape, weight_softmax.shape)

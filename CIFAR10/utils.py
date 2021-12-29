@@ -14,7 +14,7 @@ import numpy as np
 from tqdm import tqdm
 import torchattacks
 
-from visualize import visualize_loss_surface, visualize_decision_boundary
+from visualize import visualize_loss_surface, visualize_decision_boundary, visualize_cam
 from blackbox_dataset import BlackboxDataset
 import timer
 
@@ -377,9 +377,8 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             output = model(X + pgd_delta)
             # generate CAM
             output_class = int(torch.argmax(output))
-            cam = model.generateCAM(output_class)
-            cv2.imwrite('./debug/input_{}.jpg'.format(i), X.cpu().numpy())
-            cv2.imwrite('./debug/cam_{}.jpg'.format(i), cam)
+            cam = model.generate_cam(output_class)
+            visualize_cam(X, cam)
 
             timer.end_timer('base_adv')
             loss = F.cross_entropy(output, y)
