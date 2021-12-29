@@ -100,9 +100,9 @@ def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input,
 
 def visualize_cam(x, cam):
     x = x.cpu().numpy()
+    x = np.transpose(x, [1, 2, 0])
     print(x.shape)
     cv2.imwrite('./debug/input.jpg', x)
-    cv2.imwrite('./debug/cam.jpg', cam)
     fig, ax = plt.subplots()
     cam = ax.imshow(cam)
     plt.savefig('./debug/cam.jpg'.format(cam))
