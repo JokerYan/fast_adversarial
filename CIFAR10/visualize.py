@@ -103,7 +103,7 @@ def visualize_cam(x, cam):
     cifar10_std = (0.2471, 0.2435, 0.2616)
 
     x = np.squeeze(x.cpu().numpy())
-    x = x * cifar10_std + cifar10_mean
+    x = cifar10_std * x + cifar10_mean
     x = np.transpose(x, [1, 2, 0])
     print(x.shape)
     cv2.imwrite('./debug/input.jpg', x)
