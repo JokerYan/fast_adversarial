@@ -94,7 +94,6 @@ class PreActResNet(nn.Module):
     def generate_cam(self, class_idx):
         # generate the class activation maps upsample to 256x256
         weight_softmax = list(self.parameters())[-2].data.cpu().numpy()
-        print(self.feature_conv.shape, weight_softmax.shape)
         size_upsample = (32, 32)
         bz, nc, h, w = self.feature_conv.shape
         cam = weight_softmax[class_idx].dot(self.feature_conv.reshape((nc, h * w)))
@@ -103,7 +102,6 @@ class PreActResNet(nn.Module):
         cam_img = cam / np.max(cam)
         cam_img = np.uint8(255 * cam_img)
         output_cam = cv2.resize(cam_img, size_upsample)
-        print(output_cam.shape)
         return output_cam
 
 
