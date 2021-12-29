@@ -377,7 +377,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             output = model(X + pgd_delta)
             # visualize CAM
             output_class = int(torch.argmax(output))
-            cam = model.generate_cam(output_class)
+            cam = model.generate_cam(int(y))
             visualize_cam(X, cam, i)
 
             timer.end_timer('base_adv')
@@ -409,7 +409,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         #     visualize_decision_boundary(model, X, X + pgd_delta, X + pgd_delta + neighbour_delta, i)
 
         # visualize CAM
-        cam = post_model.generate_cam(output_class)
+        cam = post_model.generate_cam(int(y))
         visualize_cam(X, cam, str(i) + "_post")
 
         # evaluate base model against natural
