@@ -397,10 +397,10 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             pgd_acc_post += (output.max(1)[1] == y).sum().item()
             logger.info('Batch {}\tadv acc (post): {:.4f}'.format(i+1, pgd_acc_post / n))
 
-        # visualize decision boundary
-        natural_class = torch.argmax(model(X))
-        if int(natural_class) != int(original_class) and int(natural_class) == int(neighbour_class):
-            visualize_decision_boundary(model, X, X + pgd_delta, X + pgd_delta + neighbour_delta, i)
+        # # visualize decision boundary
+        # natural_class = torch.argmax(model(X))
+        # if int(natural_class) != int(original_class) and int(natural_class) == int(neighbour_class):
+        #     visualize_decision_boundary(model, X, X + pgd_delta, X + pgd_delta + neighbour_delta, i)
 
         # evaluate base model against natural
         with torch.no_grad():
