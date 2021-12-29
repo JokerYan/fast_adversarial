@@ -84,8 +84,9 @@ class PreActResNet(nn.Module):
         out = self.layer4(out)
         out = F.relu(self.bn(out))
         out = F.avg_pool2d(out, 4)
-        print(out.shape)
+        print("before", out.shape)
         out = out.view(out.size(0), -1)
+        print("after", out.shape)
         out = self.linear(out)
         return out
 
