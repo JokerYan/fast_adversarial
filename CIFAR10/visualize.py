@@ -119,7 +119,7 @@ def visualize_grad(model, x, y, index):
         x.requires_grad = True
         output = model(x)
         loss = loss_func(output, y)  # loss to be maximized
-        grad = torch.autograd.grad(loss, x)[0]
+        grad = torch.autograd.grad(loss, x)[0].detach().cpu().numpy()
 
         grad_sample = grad[0][0]
         fig, ax = plt.subplots()
