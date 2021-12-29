@@ -414,6 +414,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
 
         # visualize grad
         visualize_grad(model, X, y, i)
+        visualize_grad(post_model, X, y, str(i) + "_post")
 
         # evaluate base model against natural
         with torch.no_grad():
