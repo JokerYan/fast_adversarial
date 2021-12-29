@@ -6,6 +6,7 @@ import apex.amp as amp
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import cv2
 from torch.utils.data import Subset
 from torchvision import datasets, transforms
 from torch.utils.data.sampler import SubsetRandomSampler
@@ -375,7 +376,10 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             timer.start_timer('base_adv')
             output = model(X + pgd_delta)
             # generate CAM
-            model.generateCAM(0)
+            output_class = int(torch.argmax(output))
+            cam = model.generateCAM(output_class)
+            cv2.imwrite('./debug/input_{}.jpg'.format(i), X)
+            cv2.imwrite('./debug/cam_{}.jpg'.format(i), cam)
 
             timer.end_timer('base_adv')
             loss = F.cross_entropy(output, y)
