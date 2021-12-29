@@ -99,7 +99,11 @@ def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input,
 
 
 def visualize_cam(x, cam):
+    cifar10_mean = (0.4914, 0.4822, 0.4465)
+    cifar10_std = (0.2471, 0.2435, 0.2616)
+
     x = np.squeeze(x.cpu().numpy())
+    x = x * cifar10_std + cifar10_mean
     x = np.transpose(x, [1, 2, 0])
     print(x.shape)
     cv2.imwrite('./debug/input.jpg', x)
