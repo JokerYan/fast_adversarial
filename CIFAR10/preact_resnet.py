@@ -103,6 +103,7 @@ class PreActResNet(nn.Module):
         cam_img = cam / np.max(cam)
         cam_img = np.uint8(255 * cam_img)
         output_cam = cv2.resize(cam_img, size_upsample)
+        print(output_cam.shape)
         return output_cam
 
 
