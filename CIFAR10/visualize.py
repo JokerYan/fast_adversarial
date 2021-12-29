@@ -122,6 +122,7 @@ def visualize_grad(model, x, y, index):
         grad = torch.autograd.grad(loss, x)[0].detach().cpu().numpy()
 
         grad_sample = grad[0][0]
+        grad_sample[grad_sample < 0] = 0  # only positive
         fig, ax = plt.subplots()
         cam = ax.imshow(grad_sample)
         plt.savefig('./debug/grad_{}.jpg'.format(index))
