@@ -99,8 +99,10 @@ def visualize_decision_boundary(model, natural_input, adv_input, neighbor_input,
 
 
 def visualize_cam(x, cam):
-    cifar10_mean = (0.4914, 0.4822, 0.4465)
-    cifar10_std = (0.2471, 0.2435, 0.2616)
+    cifar10_mean = np.array(0.4914, 0.4822, 0.4465)
+    cifar10_std = np.array(0.2471, 0.2435, 0.2616)
+    cifar10_mean = np.expand_dims(cifar10_mean, axis=(1, 2))
+    cifar10_std = np.expand_dims(cifar10_std, axis=(1, 2))
 
     x = np.squeeze(x.cpu().numpy())
     x = cifar10_std * x + cifar10_mean
