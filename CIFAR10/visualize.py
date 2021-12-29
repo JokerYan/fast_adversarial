@@ -111,4 +111,4 @@ def visualize_cam(x, cam, index):
     cv2.imwrite('./debug/input_{}.jpg'.format(index), x)
     fig, ax = plt.subplots()
     cam = ax.imshow(cam)
-    plt.savefig('./debug/cam_{}.jpg'.format(index), cam)
+    plt.savefig('./debug/cam_{}.jpg'.format(index))
