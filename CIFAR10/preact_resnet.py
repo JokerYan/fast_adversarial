@@ -77,6 +77,7 @@ class PreActResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
+        print("input", x.shape)
         out = self.conv1(x)
         out = self.layer1(out)
         out = self.layer2(out)
