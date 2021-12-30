@@ -2,6 +2,7 @@ import cv2
 import torch
 import numpy as np
 import matplotlib
+import logging
 
 matplotlib.use('Agg')
 from matplotlib import cm
@@ -14,6 +15,7 @@ cifar10_std = (0.2471, 0.2435, 0.2616)
 
 mu = torch.tensor(cifar10_mean).view(3,1,1).cuda()
 std = torch.tensor(cifar10_std).view(3,1,1).cuda()
+logging.getLogger('matplotlib.font_manager').setLevel(logging.WARNING)
 
 
 def visualize_loss_surface(base_model, loss_model_list, loss_model_name_list, image, label, attack_func):

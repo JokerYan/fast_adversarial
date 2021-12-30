@@ -288,7 +288,6 @@ def main():
     args = get_args()
     logging.basicConfig(filename=args.log_file, level=logging.DEBUG)
     logger = logging.getLogger("eval")
-    logger.setLevel(logging.DEBUG)
     logger.info(args)
 
     np.random.seed(args.seed)

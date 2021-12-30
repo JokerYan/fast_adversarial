@@ -39,7 +39,6 @@ def main():
     # set logger file
     logging.basicConfig(filename=args.log_file, level=logging.DEBUG)
     logger = logging.getLogger("eval")
-    logger.setLevel(logging.DEBUG)
     logger.info(args)
 
     if not args.blackbox:
