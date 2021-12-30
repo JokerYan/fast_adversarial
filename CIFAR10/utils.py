@@ -2,7 +2,6 @@ import copy
 import logging
 import random
 
-import apex.amp as amp
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -122,11 +121,7 @@ def attack_pgd(model, X, y, epsilon, alpha, attack_iters, restarts, opt=None, ra
             if len(index[0]) == 0:
                 break
             loss = F.cross_entropy(output, y)
-            if opt is not None:
-                with amp.scale_loss(loss, opt) as scaled_loss:
-                    scaled_loss.backward()
-            else:
-                loss.backward()
+            loss.backward()
             grad = delta.grad.detach()
             d = delta[index[0], :, :, :]
             g = grad[index[0], :, :, :]
@@ -156,11 +151,7 @@ def attack_pgd_targeted(model, X, y, target, epsilon, alpha, attack_iters, resta
             if len(index[0]) == 0:
                 break
             loss = F.cross_entropy(output, target)
-            if opt is not None:
-                with amp.scale_loss(loss, opt) as scaled_loss:
-                    scaled_loss.backward()
-            else:
-                loss.backward()
+            loss.backward()
             grad = delta.grad.detach()
             d = delta[index[0], :, :, :]
             g = -1 * grad[index[0], :, :, :]
