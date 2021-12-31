@@ -18,6 +18,9 @@ conda activate post_train
 ## Experiments
 
 ### CIFAR-10
+#### Base Model
+The base model provided by the Fast-FGSM author can be found on the readme (here)[https://github.com/locuslab/fast_adversarial/tree/master/CIFAR10].
+
 #### Attack algorithm
 20-step l infinity PGD without restart, with ϵ = 8/255 and step size α = 3/255
 
@@ -54,6 +57,9 @@ CUDA_VISIBLE_DEVICES=0 python eval_fgsm.py \
 ```
 
 ### MNIST
+#### Base Model
+The base model is already included by the original author of Fast-FGSM in `MNIST/models/fgsm.pth`.
+
 #### Attack Algorithm
 40-step l infinity PGD without restart, with ϵ = 0.3 and step size α = 0.01, unless otherwise specified
 
@@ -88,6 +94,9 @@ CUDA_VISIBLE_DEVICES=0 python evaluate_mnist_post.py \
   --att-restart 1 \
   --log-file logs/log_exp01_${TIMESTAMP}.txt
 ```
+
+### ImageNet
+The code for ImageNet is not implemented yet.
   
 ### Arguments
 Some bash arguments are shared between CIFAR-10 and MNIST experiments.
