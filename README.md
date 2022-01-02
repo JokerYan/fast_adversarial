@@ -19,7 +19,7 @@ conda activate post_train
 
 ### CIFAR-10
 #### Base Model
-The base model provided by the Fast-FGSM author can be found on the readme (here)[https://github.com/locuslab/fast_adversarial/tree/master/CIFAR10].
+The base model provided by the Fast-FGSM author can be found on the readme [here](https://github.com/locuslab/fast_adversarial/tree/master/CIFAR10).
 
 #### Attack algorithm
 20-step l infinity PGD without restart, with ϵ = 8/255 and step size α = 3/255
