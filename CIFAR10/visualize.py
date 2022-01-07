@@ -128,6 +128,6 @@ def visualize_grad(model, x, y, index):
         fig, ax = plt.subplots()
         # print("vmin:", np.min(grad_sample))
         # print("vmax:", np.max(grad_sample))
-        cam = ax.imshow(grad_sample, vmin=-0.05, vmax=0.05)
+        cam = ax.imshow(grad_sample, vmin=-0.02, vmax=0.02)
         plt.savefig('./debug/grad_{}.jpg'.format(index))
         plt.close()
