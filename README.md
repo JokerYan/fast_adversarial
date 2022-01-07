@@ -9,7 +9,7 @@ The original Fast FGSM base model repo: https://github.com/locuslab/fast_adversa
 * Please note that the algorithm might be referred as **post training** for easy reference.
 
 ## Envrionment Setups
-We recommend using Anaconda/Miniconda to setup the envrionment, with the following command:
+We recommend using Anaconda/Miniconda to setup the environment, with the following command:
 ```bash
 conda env create -f pt_env.yml
 conda activate post_train

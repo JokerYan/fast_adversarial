@@ -344,6 +344,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
     alpha = (2 / 255.) / std
     pgd_loss = 0
     pgd_acc = 0
+    pgd_success_list = []
     pgd_loss_post = 0
     pgd_acc_post = 0
     natural_loss = 0
@@ -377,6 +378,12 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             pgd_loss += loss.item() * y.size(0)
             pgd_acc += (output.max(1)[1] == y).sum().item()
             logger.info('Batch {}\tbase acc: {:.4f}'.format(i+1, pgd_acc / n))
+
+        if args.blackbox:  #
+            if (output.max(1)[1] != y).sum().item():  # attack successful
+                pgd_success_list.append(i)
+            logger.info("Blackbox correct:", pgd_success_list)
+            continue
 
         # evaluate post model against adv
         with torch.no_grad():
