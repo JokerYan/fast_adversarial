@@ -139,3 +139,4 @@ def visualize_delta(delta, index):
     fig, ax = plt.subplots()
     _ = ax.imshow(delta_sample)
     plt.savefig('./debug/delta_{}.jpg'.format(index))
+    plt.close()
