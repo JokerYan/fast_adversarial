@@ -382,7 +382,8 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         if args.blackbox:  #
             if (output.max(1)[1] != y).sum().item():  # attack successful
                 pgd_success_list.append(i)
-            logger.info("Blackbox correct:", pgd_success_list)
+            if i % 1000 == 0:
+                logger.info("Blackbox correct: " + str(pgd_success_list))
             continue
 
         # evaluate post model against adv
