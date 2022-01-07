@@ -9,4 +9,4 @@ CUDA_VISIBLE_DEVICES=1 python eval_fgsm.py \
   --att-iter 20 \
   --att-restart 1 \
   --blackbox \
-  --log-file logs/log_exp04_${TIMESTAMP}.txt
+  --log-file logs/log_exp_blackbox_${TIMESTAMP}.txt
