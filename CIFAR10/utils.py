@@ -385,7 +385,11 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             if i % 1000 == 0:
                 with open('./logs/log_exp_blackbox_index.txt', 'w+') as f:
                     f.write('\n'.join(pgd_success_list))
-            continue
+
+        # visualize grad
+        visualize_grad(model, X, y, i)
+        # visualize_grad(post_model, X, y, str(i) + "_post")
+        continue  # skip post train
 
         # evaluate post model against adv
         with torch.no_grad():
@@ -412,10 +416,6 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         # # visualize CAM
         # cam = post_model.generate_cam(int(y))
         # visualize_cam(X, cam, str(i) + "_post")
-
-        # visualize grad
-        visualize_grad(model, X, y, i)
-        visualize_grad(post_model, X, y, str(i) + "_post")
 
         # evaluate base model against natural
         with torch.no_grad():
