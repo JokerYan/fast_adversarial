@@ -390,6 +390,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         visualize_grad(model, X, y, str(i))
         # visualize_grad(post_model, X, y, str(i) + "_post")
         if args.blackbox:
+            print(pgd_delta)
             visualize_delta(pgd_delta, str(i) + "_blackbox")
         else:
             visualize_delta(pgd_delta, str(i))
