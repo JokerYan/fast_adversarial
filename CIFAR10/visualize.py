@@ -136,6 +136,7 @@ def visualize_grad(model, x, y, index):
 def visualize_delta(delta, index):
     delta = delta.detach().cpu().numpy()
     delta_sample = delta[0][0]
+    delta_sample = - delta_sample  # reverse direction
     fig, ax = plt.subplots()
     _ = ax.imshow(delta_sample, vmin=0)
     plt.savefig('./debug/delta_{}.jpg'.format(index))
