@@ -13,7 +13,7 @@ import numpy as np
 from tqdm import tqdm
 import torchattacks
 
-from visualize import visualize_loss_surface, visualize_decision_boundary, visualize_cam, visualize_grad
+from visualize import visualize_loss_surface, visualize_decision_boundary, visualize_cam, visualize_grad, visualize_delta
 from blackbox_dataset import BlackboxDataset
 import timer
 
