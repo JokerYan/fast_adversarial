@@ -111,7 +111,7 @@ def visualize_cam(x, cam, index):
     x = np.transpose(x, [1, 2, 0])
     cv2.imwrite('./debug/input_{}.jpg'.format(index), x)
     fig, ax = plt.subplots()
-    cam = ax.imshow(cam)
+    _ = ax.imshow(cam)
     plt.savefig('./debug/cam_{}.jpg'.format(index))
 
 
@@ -128,6 +128,14 @@ def visualize_grad(model, x, y, index):
         fig, ax = plt.subplots()
         # print("vmin:", np.min(grad_sample))
         # print("vmax:", np.max(grad_sample))
-        cam = ax.imshow(grad_sample, vmin=0)
+        _ = ax.imshow(grad_sample, vmin=0)
         plt.savefig('./debug/grad_{}.jpg'.format(index))
         plt.close()
+
+
+def visualize_delta(delta, index):
+    delta = delta.detach().cpu().numpy()
+    delta_sample = delta[0][0]
+    fig, ax = plt.subplots()
+    _ = ax.imshow(delta_sample)
+    plt.savefig('./debug/delta_{}.jpg'.format(index))
