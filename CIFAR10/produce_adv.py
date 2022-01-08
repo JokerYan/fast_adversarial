@@ -92,4 +92,4 @@ def main():
     saved_path = "../../data/cifar10_adv_fast.pickle"
     with open(saved_path, "wb") as f:
         pickle.dump(saved_adv, f, protocol=pickle.HIGHEST_PROTOCOL)
-        print("adv saved to path: {}".format(saved_path))
+        logger.info("adv saved to path: {}".format(saved_path))

@@ -1,6 +1,6 @@
 # produced using exp04 setups
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
-CUDA_VISIBLE_DEVICES=1 python eval_fgsm.py \
+CUDA_VISIBLE_DEVICES=1 python produce_adv.py \
   --pt-data ori_neigh \
   --pt-method dir_adv \
   --adv-dir both \
