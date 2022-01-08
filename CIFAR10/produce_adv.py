@@ -72,6 +72,7 @@ def main():
 
     for i, (X, y) in enumerate(test_loader):
         n += y.size(0)
+        X, y = X.cuda(), y.cuda()
         pgd_delta = attack_pgd(model, X, y, epsilon, alpha, args.att_iter, args.att_restart).detach()
         with torch.no_grad():
             output = model(X + pgd_delta)
