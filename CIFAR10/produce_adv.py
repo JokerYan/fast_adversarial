@@ -93,3 +93,6 @@ def main():
     with open(saved_path, "wb") as f:
         pickle.dump(saved_adv, f, protocol=pickle.HIGHEST_PROTOCOL)
         logger.info("adv saved to path: {}".format(saved_path))
+
+if __name__ == '__main__':
+    main()
