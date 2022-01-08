@@ -355,13 +355,14 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
     n = 0
     model.eval()
     cos_sim = nn.CosineSimilarity(dim=0)
+
     for i, (X, y) in enumerate(test_loader):
         n += y.size(0)
         X, y = X.cuda(), y.cuda()
         if not args.blackbox:
             pgd_delta = attack_pgd(model, X, y, epsilon, alpha, args.att_iter, args.att_restart).detach()
         else:
-            pgd_delta = torch.zeros_like(X)
+            pgd_delta = torch.zeros_like(X)  # the test data is already after the attack
 
         logger.info("\n")
         # evaluate base model against adv
@@ -386,14 +387,11 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
                 with open('./logs/log_exp_blackbox_index.txt', 'w+') as f:
                     f.write('\n'.join(pgd_success_list))
 
-        # visualize grad
-        visualize_grad(model, X, y, str(i))
-        # visualize_grad(post_model, X, y, str(i) + "_post")
-        if args.blackbox:
-            print(pgd_delta)
-            visualize_delta(pgd_delta, str(i) + "_blackbox")
-        else:
-            visualize_delta(pgd_delta, str(i))
+        # # visualize grad
+        # visualize_grad(model, X, y, str(i))
+        # # visualize_grad(post_model, X, y, str(i) + "_post")
+        # visualize_delta(pgd_delta, str(i))
+
         continue  # skip post train
 
         # evaluate post model against adv
