@@ -392,7 +392,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         # # visualize_grad(post_model, X, y, str(i) + "_post")
         visualize_delta(pgd_delta, str(i))
 
-        # continue  # skip post train
+        continue  # skip post train
 
         # evaluate post model against adv
         with torch.no_grad():
