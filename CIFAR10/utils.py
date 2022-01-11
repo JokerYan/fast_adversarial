@@ -118,8 +118,8 @@ def attack_pgd(model, X, y, epsilon, alpha, attack_iters, restarts, opt=None, ra
         for _ in range(attack_iters):
             output = model(X + delta)
             index = torch.where(output.max(1)[1] == y)
-            # if len(index[0]) == 0:
-            #     break
+            if len(index[0]) == 0:
+                break
             loss = F.cross_entropy(output, y)
             assert opt is None  # does not use apex
             loss.backward()
