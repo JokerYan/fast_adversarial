@@ -360,7 +360,8 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         n += y.size(0)
         X, y = X.cuda(), y.cuda()
         if not args.blackbox:
-            pgd_delta = attack_pgd(model, X, y, epsilon, alpha, args.att_iter, args.att_restart).detach()
+            # pgd_delta = attack_pgd(model, X, y, epsilon, alpha, args.att_iter, args.att_restart).detach()
+            pgd_delta = attack_pgd(model, X, y, epsilon, alpha, args.att_iter, args.att_restart, random_start=False).detach()
         else:
             pgd_delta = torch.zeros_like(X)  # the test data is already after the attack
 

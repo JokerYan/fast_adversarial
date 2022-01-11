@@ -140,6 +140,6 @@ def visualize_delta(delta, index):
     delta_sample[delta_sample < 0] = 0
     fig, ax = plt.subplots()
     _ = ax.imshow(delta_sample, vmin=0, vmax=epsilon)
-    print(epsilon, np.min(delta_sample), np.max(delta_sample))
+    # print(epsilon, np.min(delta_sample), np.max(delta_sample))
     plt.savefig('./debug/delta_{}.jpg'.format(index))
     plt.close()
