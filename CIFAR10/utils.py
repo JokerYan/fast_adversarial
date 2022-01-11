@@ -118,8 +118,8 @@ def attack_pgd(model, X, y, epsilon, alpha, attack_iters, restarts, opt=None, ra
         for _ in range(attack_iters):
             output = model(X + delta)
             index = torch.where(output.max(1)[1] == y)
-            if len(index[0]) == 0:
-                break
+            # if len(index[0]) == 0:
+            #     break
             loss = F.cross_entropy(output, y)
             assert opt is None  # does not use apex
             loss.backward()
@@ -344,7 +344,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
     alpha = (2 / 255.) / std
     pgd_loss = 0
     pgd_acc = 0
-    pgd_success_list = []
+    pgd_blackbox_success_list = []
     pgd_loss_post = 0
     pgd_acc_post = 0
     natural_loss = 0
@@ -382,17 +382,17 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
 
         if args.blackbox:  #
             if (output.max(1)[1] != y).sum().item():  # attack successful
-                pgd_success_list.append(str(i))
+                pgd_blackbox_success_list.append(str(i))
             if i % 1000 == 0:
                 with open('./logs/log_exp_blackbox_index.txt', 'w+') as f:
-                    f.write('\n'.join(pgd_success_list))
+                    f.write('\n'.join(pgd_blackbox_success_list))
 
         # # visualize grad
         # visualize_grad(model, X, y, str(i))
         # # visualize_grad(post_model, X, y, str(i) + "_post")
         # visualize_delta(pgd_delta, str(i))
 
-        continue  # skip post train
+        # continue  # skip post train
 
         # evaluate post model against adv
         with torch.no_grad():
