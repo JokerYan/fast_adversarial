@@ -134,10 +134,12 @@ def visualize_grad(model, x, y, index):
 
 
 def visualize_delta(delta, index):
+    epsilon = 8/255 / 0.2471  # divide by std
     delta = delta.detach().cpu().numpy()
     delta_sample = delta[0][0]
     delta_sample[delta_sample < 0] = 0
     fig, ax = plt.subplots()
-    _ = ax.imshow(delta_sample)
+    _ = ax.imshow(delta_sample, vmin=-epsilon, vmax=epsilon)
+    print(epsilon, torch.min(delta_sample), torch.max(delta_sample))
     plt.savefig('./debug/delta_{}.jpg'.format(index))
     plt.close()
