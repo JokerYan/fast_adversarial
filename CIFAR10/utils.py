@@ -364,9 +364,9 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
 
             # neighbor delta:
             pgd_delta = attack_pgd(model, X, y, epsilon, alpha, args.att_iter, args.att_restart, random_start=False).detach()  # attack input
-            y = torch.ones_like(y) * int(torch.argmax(model(X + pgd_delta)))
-            pgd_delta = attack_pgd(model, X + pgd_delta, y, epsilon, alpha, args.att_iter, args.att_restart, random_start=False).detach()  # neighbor input
-            y = torch.ones_like(y) * int(torch.argmax(model(X + pgd_delta)))
+            target = torch.ones_like(y) * int(torch.argmax(model(X + pgd_delta)))
+            pgd_delta = attack_pgd(model, X + pgd_delta, target, epsilon, alpha, args.att_iter, args.att_restart, random_start=False).detach()  # neighbor input
+            target = torch.ones_like(y) * int(torch.argmax(model(X + pgd_delta)))
             pgd_delta = attack_pgd(model, X + pgd_delta, y, epsilon, alpha, args.att_iter, args.att_restart, random_start=False).detach()  # attack from neighbor input
         else:
             pgd_delta = torch.zeros_like(X)  # the test data is already after the attack
