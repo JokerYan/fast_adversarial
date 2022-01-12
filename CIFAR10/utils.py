@@ -360,14 +360,7 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         n += y.size(0)
         X, y = X.cuda(), y.cuda()
         if not args.blackbox:
-            # pgd_delta = attack_pgd(model, X, y, epsilon, alpha, args.att_iter, args.att_restart).detach()
-
-            # neighbor delta:
-            pgd_delta = attack_pgd(model, X, y, epsilon, alpha, args.att_iter, args.att_restart, random_start=False).detach()  # attack input
-            target = torch.ones_like(y) * int(torch.argmax(model(X + pgd_delta)))
-            pgd_delta = attack_pgd(model, X + pgd_delta, target, epsilon, alpha, args.att_iter, args.att_restart, random_start=False).detach()  # neighbor input
-            target = torch.ones_like(y) * int(torch.argmax(model(X + pgd_delta)))
-            pgd_delta = attack_pgd(model, X + pgd_delta, y, epsilon, alpha, args.att_iter, args.att_restart, random_start=False).detach()  # attack from neighbor input
+            pgd_delta = attack_pgd(model, X, y, epsilon, alpha, args.att_iter, args.att_restart).detach()
         else:
             pgd_delta = torch.zeros_like(X)  # the test data is already after the attack
 
@@ -376,10 +369,6 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
         with torch.no_grad():
             timer.start_timer('base_adv')
             output = model(X + pgd_delta)
-            # # visualize CAM
-            # output_class = int(torch.argmax(output))
-            # cam = model.generate_cam(int(y))
-            # visualize_cam(X, cam, i)
 
             timer.end_timer('base_adv')
             loss = F.cross_entropy(output, y)
@@ -393,13 +382,6 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             if i % 1000 == 0:
                 with open('./logs/log_exp_blackbox_index.txt', 'w+') as f:
                     f.write('\n'.join(pgd_blackbox_success_list))
-
-        # # visualize grad
-        # visualize_grad(model, X, y, str(i))
-        # # visualize_grad(post_model, X, y, str(i) + "_post")
-        visualize_delta(pgd_delta, str(i))
-
-        continue  # skip post train
 
         # evaluate post model against adv
         with torch.no_grad():
@@ -417,15 +399,6 @@ def evaluate_pgd_post(test_loader, train_loader, train_loaders_by_class, model, 
             pgd_loss_post += loss.item() * y.size(0)
             pgd_acc_post += (output.max(1)[1] == y).sum().item()
             logger.info('Batch {}\tadv acc (post): {:.4f}'.format(i+1, pgd_acc_post / n))
-
-        # # visualize decision boundary
-        # natural_class = torch.argmax(model(X))
-        # if int(natural_class) != int(original_class) and int(natural_class) == int(neighbour_class):
-        #     visualize_decision_boundary(model, X, X + pgd_delta, X + pgd_delta + neighbour_delta, i)
-
-        # # visualize CAM
-        # cam = post_model.generate_cam(int(y))
-        # visualize_cam(X, cam, str(i) + "_post")
 
         # evaluate base model against natural
         with torch.no_grad():
